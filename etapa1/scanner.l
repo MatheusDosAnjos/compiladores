@@ -1,3 +1,9 @@
+/*
+20/03/2025
+UFRGS - INF01147 Compiladores - 2025/1
+Matheus Adam dos Anjos
+*/
+
 %{
     #include "tokens.h"
 
@@ -5,19 +11,17 @@
     int running = 1;
 %}
 
-%x STRING
-%x COMMENT
 %x MULTI_LINE_COMMENT
 
 DIGIT  [0-9]+
 
 %%
 
-"byte"                      { return KW_BYTE;       }
-"int"                       { return KW_INT;        }
-"real"                      { return KW_REAL;       }
+"byte"                      { return KW_BYTE; }
+"int"                       { return KW_INT; }
+"real"                      { return KW_REAL; }
 
-"if"                        { return KW_IF;         }
+"if"                        { return KW_IF; }
 "else"                      { return KW_ELSE; }
 "do"                        { return KW_DO; }
 "while"                     { return KW_WHILE; }
