@@ -1,2 +1,3 @@
 etapa1/lex.yy.cpp
-*.0
+*.o
+etapa1/etapa1
