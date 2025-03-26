@@ -1,0 +1,8 @@
+123
+'a'
+"Hello, World!"
+42
+3.14
+"String with \"escaped quotes\""
+'X'
+100/5

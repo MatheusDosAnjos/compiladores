@@ -14,14 +14,13 @@ Matheus Adam dos Anjos
 
 %x MULTI_LINE_COMMENT
 
-DIGIT  [0-9]+
+DIGIT  [0-9]
 
 %%
 
 "byte"                      { return KW_BYTE; }
 "int"                       { return KW_INT; }
 "real"                      { return KW_REAL; }
-
 "if"                        { return KW_IF; }
 "else"                      { return KW_ELSE; }
 "do"                        { return KW_DO; }
