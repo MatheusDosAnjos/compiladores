@@ -1,0 +1,6 @@
+"1 essa string"
+"2 essa string \""
+"3 essa string \"\""
+"4 essa string \\\""
+"5 essa \" string \\ \""
+"\"

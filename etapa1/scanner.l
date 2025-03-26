@@ -6,6 +6,7 @@ Matheus Adam dos Anjos
 
 %{
     #include "tokens.h"
+    #include "symbols.hpp"
 
     int lineNumber = 1;
     int running = 1;
@@ -35,12 +36,12 @@ DIGIT  [0-9]+
 "=="                        { return OPERATOR_EQ; }
 "!="                        { return OPERATOR_DIF; }
 
-[a-zA-Z_][a-zA-Z0-9_]*      { return TK_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]*      { addSymbol(TK_IDENTIFIER, yytext); return TK_IDENTIFIER; }
 
-{DIGIT}+\/{DIGIT}+          { return LIT_REAL; }
-{DIGIT}+                    { return LIT_INT; }
-'[^'\n\t]'                  { return LIT_CHAR; }
-\"(\\.|[^\\"])*\"           { return LIT_STRING; }
+{DIGIT}+\/{DIGIT}+          { addSymbol(LIT_REAL, yytext); return LIT_REAL; }
+{DIGIT}+                    { addSymbol(LIT_INT, yytext); return LIT_INT; }
+'[^'\n\t]'                  { addSymbol(LIT_CHAR, yytext); return LIT_CHAR; }
+\"(\\.|[^\\"])*\"           { addSymbol(LIT_STRING, yytext); return LIT_STRING; }
 
 [ \t\r]+
 \n                          { lineNumber++; }

@@ -9,6 +9,7 @@ Matheus Adam dos Anjos
 
 #include "lex.yy.h"
 #include "tokens.h"
+#include "symbols.hpp"
 
 extern int isRunning(void);
 extern int getLineNumber(void);
@@ -85,7 +86,7 @@ int main(int argc, char** argv) {
                 fprintf(stderr, "LIT_STRING ");
                 break;
             case TOKEN_ERROR:
-                fprintf(stderr, "TOKEN_ERROR ");
+                fprintf(stderr, "TOKEN_ERROR %s ", yytext);
                 break;
             default:
                 fprintf(stderr, "DEFAULT %s ", yytext);
@@ -94,4 +95,5 @@ int main(int argc, char** argv) {
     }
 
     fprintf(stderr, "Line number: %d lines\n", getLineNumber());
+    printSymbolTable();
 }

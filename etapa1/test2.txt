@@ -1,6 +1,0 @@
-"essa string"
-"essa string \""
-"essa string \"\""
-"essa string \\\""
-"essa \" string \\ \""
-"\"
