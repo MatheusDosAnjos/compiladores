@@ -1,7 +1,7 @@
 #
 # 20/03/2025
 # UFRGS - INF01147 Compiladores - 2025/1
-# Arquivo base disponibilizado pelo professor
+# Matheus Adam dos Anjos -> Arquivo base disponibilizado pelo professor
 #
 
 CXX = g++

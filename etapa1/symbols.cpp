@@ -28,6 +28,8 @@ SYMBOL* addSymbol(int type, char *text) {
 }
 
 void printSymbolTable() {
+    fprintf(stderr, "\nPrinting symbol table:\n");
+
     for (auto const& x : symbolTable) {
         switch (x.second->type) {
             case TK_IDENTIFIER:

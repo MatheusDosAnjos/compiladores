@@ -15,8 +15,8 @@ extern int isRunning(void);
 extern int getLineNumber(void);
 
 int main(int argc, char** argv) {
-    if (argc < 3 ){
-        printf("Error: input/outuput files missing. Run '%s <input_file> <output_file>'\n", argv[0]);
+    if (argc < 2) {
+        printf("Error: input file missing. Run '%s <input_file>'\n", argv[0]);
         exit(1);
     }
 
