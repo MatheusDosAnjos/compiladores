@@ -7,7 +7,7 @@ Matheus Adam dos Anjos
 #ifndef LEX_YY_H
 #define LEX_YY_H
 
-#include <cstdio>
+#include <stdio.h>
 
 extern int yylex(void);
 extern char* yytext;

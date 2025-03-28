@@ -5,7 +5,6 @@ Matheus Adam dos Anjos
 */
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "lex.yy.h"
 #include "tokens.h"
@@ -86,10 +85,10 @@ int main(int argc, char** argv) {
                 fprintf(stderr, "LIT_STRING ");
                 break;
             case TOKEN_ERROR:
-                fprintf(stderr, "TOKEN_ERROR %s ", yytext);
+                fprintf(stderr, "TOKEN_ERROR[%s] ", yytext);
                 break;
             default:
-                fprintf(stderr, "DEFAULT %s ", yytext);
+                fprintf(stderr, "DEFAULT[%s]", yytext);
                 break;
         }
     }
