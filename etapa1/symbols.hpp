@@ -9,13 +9,17 @@ Matheus Adam dos Anjos
 
 #include <string>
 
-struct SYMBOL {
-    int type;
-    std::string text;
-    public: SYMBOL(int t, std::string s): type(t), text(s) {}
+enum SymbolType {
+    IDENTIFIER, INT, CHAR, REAL, STRING
 };
 
-SYMBOL* addSymbol(int type, char* text);
-void printSymbolTable();
+struct Symbol {
+    SymbolType type;
+    std::string text;
+    public: Symbol(SymbolType t, std::string s): type(t), text(s) {}
+} typedef SYMBOL;
+
+SYMBOL* addSymbol(SymbolType type, char* text);
+void printSymbolTable(void);
 
 #endif

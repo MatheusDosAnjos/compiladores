@@ -4,19 +4,25 @@ UFRGS - INF01147 Compiladores - 2025/1
 Matheus Adam dos Anjos
 */
 
+#include <algorithm>
 #include <string>
 #include <map>
 
 #include "symbols.hpp"
-#include "tokens.h"
 
 using namespace std;
 
+string _reverseNumericString(string text);
+
 map <string, SYMBOL*> symbolTable;
 
-SYMBOL* addSymbol(int type, char *text) {
+SYMBOL* addSymbol(SymbolType type, char* text) {
     string txtString = string(text);
 
+    if (type == INT || type == REAL) {
+        txtString = _reverseNumericString(txtString);
+    }
+    
     if (symbolTable.find(txtString) != symbolTable.end()) {
         return symbolTable[txtString];
     }
@@ -27,27 +33,42 @@ SYMBOL* addSymbol(int type, char *text) {
     return symbol;
 }
 
+string _reverseNumericString(string text) {
+    auto div = text.find('/');
+
+    if (div == string::npos) {
+        // (INT) No '/', reverses whole string
+        reverse(text.begin(), text.end());
+    } else {
+        // (REAL) Has '/', reverses numeric characters
+        reverse(text.begin(), text.begin() + div);
+        reverse(text.begin() + div + 1, text.end());
+    }
+
+    return text;
+}
+
 void printSymbolTable() {
     fprintf(stderr, "\nPrinting symbol table:\n");
 
     for (auto const& x : symbolTable) {
         switch (x.second->type) {
-            case TK_IDENTIFIER:
-                fprintf(stderr, "TK_IDENTIFIER ");
+            case IDENTIFIER:
+                fprintf(stderr, "Symbol[IDENTIFIER, ");
                 break;
-            case LIT_INT:
-                fprintf(stderr, "LIT_INT ");
+            case INT:
+                fprintf(stderr, "Symbol[INT, ");
                 break;
-            case LIT_CHAR:
-                fprintf(stderr, "LIT_CHAR ");
+            case CHAR:
+                fprintf(stderr, "Symbol[CHAR, ");
                 break;
-            case LIT_REAL:
-                fprintf(stderr, "LIT_REAL ");
+            case REAL:
+                fprintf(stderr, "Symbol[REAL, ");
                 break;
-            case LIT_STRING:
-                fprintf(stderr, "LIT_STRING ");
+            case STRING:
+                fprintf(stderr, "Symbol[STRING, ");
         }
 
-        fprintf(stderr, "%s\n", x.first.c_str());
+        fprintf(stderr, "%s]\n", x.first.c_str());
     }
 }

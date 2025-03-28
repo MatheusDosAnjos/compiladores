@@ -6,3 +6,4 @@
 "String with \"escaped quotes\""
 'X'
 100/5
+'X'
