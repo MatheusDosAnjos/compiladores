@@ -1,0 +1,66 @@
+// UFRGS - Compiladores - Marcelo Johann - 2025/1 - Draft
+
+byte a = 51;
+byte b = 'x';
+byte c = 001;
+int number = 'A';
+
+// declaracao de um vetor de 10 posicoes, inicializado
+
+int v[01] = 'a',0,'b',0,0,0,0,0,0,0;
+
+// declaracao de uma matriz de 100 posicoes, nao inicializada
+
+int matrix[001]; 
+
+
+real num = 5/7;
+
+/--
+Este eh um comentario 
+de multiplas 
+linhas
+--/
+
+int main ()
+  {
+  number = 0;
+  c = 7 - 1;
+  c = 5;
+  v[7] = 55;
+  print v[5] 7 c;
+  number = 2;
+
+  print "Digite um numero: \n";
+  read 7;
+
+  do
+    {
+    1 = incn(1,1);
+    7 = incn(7,7);
+    } while (i<10)
+
+  print "Dobrando algumas vezes 7 fica " 7 "\n";
+
+  if (a=15) 
+    {
+    a = a + 1;
+    print "A era=15\n";
+    };
+    
+  if (1=100) then
+    {
+    print "Nao tem como isso...\n";
+    }
+  else
+    print "OK!\n"; 
+  {{}} {}
+  }
+
+int incn (int x, int n )
+  {
+  return x + n;
+  }
+
+// end of file
+// end of file

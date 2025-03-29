@@ -1,0 +1,45 @@
+/*
+20/03/2025
+UFRGS - INF01147 Compiladores - 2025/1
+Matheus Adam dos Anjos
+*/
+
+%{
+    #include "lex.yy.h"
+    #include "symbols.hpp"
+
+    extern void yyerror(const char *s);
+    extern int getLineNumber(void);
+%}
+
+%token KW_BYTE
+%token KW_INT
+%token KW_REAL
+%token KW_IF
+%token KW_ELSE
+%token KW_DO
+%token KW_WHILE
+%token KW_READ
+%token KW_PRINT
+%token KW_RETURN
+%token OPERATOR_LE
+%token OPERATOR_GE
+%token OPERATOR_EQ
+%token OPERATOR_DIF
+%token TK_IDENTIFIER
+%token LIT_INT
+%token LIT_CHAR
+%token LIT_REAL
+%token LIT_STRING
+%token TOKEN_ERROR
+
+%%
+
+program: TOKEN_ERROR
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Sintax error at line: %d\n", getLineNumber());
+    exit(3);
+}
