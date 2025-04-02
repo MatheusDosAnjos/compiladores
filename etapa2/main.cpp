@@ -32,5 +32,5 @@ int main(int argc, char** argv) {
     
     printSymbolTable();
 
-    return 0;
+    exit(0);
 }
