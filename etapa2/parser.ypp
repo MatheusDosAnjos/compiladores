@@ -37,11 +37,11 @@ Matheus Adam dos Anjos
 
 program: decl_list
 
-decl_list: decl ';' decl_list
+decl_list: decl decl_list
     |
     ;
 
-decl: var_decl
+decl: var_decl ';' | func_decl
     ;
 
 type: KW_BYTE | KW_INT | KW_REAL
@@ -50,14 +50,25 @@ type: KW_BYTE | KW_INT | KW_REAL
 value: LIT_INT | LIT_CHAR | LIT_REAL
     ;
 
-var_decl: type TK_IDENTIFIER '=' value | array_decl ;
+var_def: type TK_IDENTIFIER
+    ;
 
-array_decl: type TK_IDENTIFIER '[' LIT_INT ']'
-    | type TK_IDENTIFIER '[' LIT_INT ']' '=' array_init
+var_decl: var_def '=' value | array_decl ;
+
+array_decl: var_def '[' LIT_INT ']'
+    | var_def '[' LIT_INT ']' '=' array_init
     ;
 
 array_init: value
     | value ',' array_init
+    ;
+
+func_decl: var_def '(' param_list ')'
+    ;
+
+param_list: var_def
+    | var_def ',' param_list
+    |
     ;
 
 %%
