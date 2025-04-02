@@ -35,11 +35,34 @@ Matheus Adam dos Anjos
 
 %%
 
-program: TOKEN_ERROR
+program: decl_list
+
+decl_list: decl ';' decl_list
+    |
+    ;
+
+decl: var_decl
+    ;
+
+type: KW_BYTE | KW_INT | KW_REAL
+    ;
+
+value: LIT_INT | LIT_CHAR | LIT_REAL
+    ;
+
+var_decl: type TK_IDENTIFIER '=' value | array_decl ;
+
+array_decl: type TK_IDENTIFIER '[' LIT_INT ']'
+    | type TK_IDENTIFIER '[' LIT_INT ']' '=' array_init
+    ;
+
+array_init: value
+    | value ',' array_init
+    ;
 
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Sintax error at line: %d\n", getLineNumber());
+    fprintf(stderr, "Syntax error at line: %d\n", getLineNumber());
     exit(3);
 }
