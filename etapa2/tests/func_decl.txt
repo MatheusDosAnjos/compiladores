@@ -1,0 +1,6 @@
+byte func1() {}
+int func2(int x) {}
+real func3(byte a, int b) {}
+byte func4(int x, byte y, real z) {}
+int func5(byte x) {}
+real func6(real x, int y) {}
