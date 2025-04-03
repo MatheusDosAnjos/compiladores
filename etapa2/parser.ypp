@@ -33,6 +33,11 @@ Matheus Adam dos Anjos
 %token LIT_STRING
 %token TOKEN_ERROR
 
+%left '&' '|' '~'
+%left '<' '>' '='
+%left '+' '-'
+%left '*' '/'
+
 %%
 
 program: decl_list
@@ -44,16 +49,16 @@ decl_list: decl decl_list
 decl: var_decl ';' | func_decl
     ;
 
-type: KW_BYTE | KW_INT | KW_REAL
-    ;
-
-value: LIT_INT | LIT_CHAR | LIT_REAL
+var_decl: var_def '=' value | array_decl
     ;
 
 var_def: type TK_IDENTIFIER
     ;
 
-var_decl: var_def '=' value | array_decl
+type: KW_BYTE | KW_INT | KW_REAL
+    ;
+
+value: LIT_INT | LIT_CHAR | LIT_REAL
     ;
 
 array_decl: var_def '[' LIT_INT ']'
@@ -64,7 +69,7 @@ array_init: value
     | value ',' array_init
     ;
 
-func_decl: var_def '(' param_list ')' block
+func_decl: var_def '(' param_list ')' cmd_block
     ;
 
 param_list: var_def
@@ -72,43 +77,43 @@ param_list: var_def
     |
     ;
 
-block: '{' stmt_list '}'
+cmd_block: '{' cmd_list '}'
     ;
 
-stmt_list: stmt stmt_list
+cmd_list: cmd cmd_list
     |
     ;
 
-stmt: assign_stmt
-    | if_stmt
-    | while_do_stmt
-    | do_while_stmt
-    | read_stmt ';'
-    | print_stmt ';'
-    | return_stmt ';'
-    | block
+cmd: assign_cmd
+    | if_cmd
+    | while_do_cmd
+    | do_while_cmd
+    | read_cmd ';'
+    | print_cmd ';'
+    | return_cmd ';'
+    | cmd_block
     | expr ';'
-    | ';' // TODO: isso aqui tá certo?
+    | ';'
     ;
 
-assign_stmt: TK_IDENTIFIER '=' expr ';'
+assign_cmd: TK_IDENTIFIER '=' expr ';'
     | TK_IDENTIFIER '[' expr ']' '=' expr ';'
     ;
 
-if_stmt: KW_IF '(' expr ')' stmt
-    | KW_IF '(' expr ')' stmt KW_ELSE stmt
+if_cmd: KW_IF '(' expr ')' cmd
+    | KW_IF '(' expr ')' cmd KW_ELSE cmd
     ;
 
-while_do_stmt: KW_WHILE expr KW_DO stmt
+while_do_cmd: KW_WHILE expr KW_DO cmd
     ;
 
-do_while_stmt: KW_DO stmt KW_WHILE expr ';'
+do_while_cmd: KW_DO cmd KW_WHILE expr ';'
     ;
 
-read_stmt: KW_READ TK_IDENTIFIER
+read_cmd: KW_READ TK_IDENTIFIER
     ;
 
-print_stmt: KW_PRINT print_list
+print_cmd: KW_PRINT print_list
     ;
 
 print_list: print_item
@@ -118,11 +123,12 @@ print_list: print_item
 print_item: LIT_STRING | expr
     ;
 
-return_stmt: KW_RETURN expr;
+return_cmd: KW_RETURN expr;
 
 expr: TK_IDENTIFIER array_access
     | value
     | expr op expr
+    | '~' expr
     | '(' expr ')'
     | func_call
     ;
@@ -131,8 +137,7 @@ array_access: '[' expr ']'
     |
     ; 
 
-// | OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF
-op: '+' | '-' | '*' | '/' | '<' | '>' | '=' | '&' | '|' | '~'
+op: '+' | '-' | '*' | '/' | '<' | '>' | '=' | '&' | '|' | OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF
     ;
 
 func_call: TK_IDENTIFIER '(' arg_list ')'
