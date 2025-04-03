@@ -33,8 +33,9 @@ Matheus Adam dos Anjos
 %token LIT_STRING
 %token TOKEN_ERROR
 
-%left '&' '|' '~'
-%left '<' '>' '='
+%right '=' '~'
+%left '&' '|'
+%left '<' '>' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF
 %left '+' '-'
 %left '*' '/'
 
@@ -97,7 +98,10 @@ cmd: assign_cmd
     ;
 
 assign_cmd: TK_IDENTIFIER '=' expr ';'
-    | TK_IDENTIFIER '[' expr ']' '=' expr ';'
+    | array_elem '=' expr ';'
+    ;
+
+array_elem: TK_IDENTIFIER '[' expr ']'
     ;
 
 if_cmd: KW_IF '(' expr ')' cmd
@@ -125,22 +129,29 @@ print_item: LIT_STRING | expr
 
 return_cmd: KW_RETURN expr;
 
-expr: TK_IDENTIFIER array_access
-    | value
-    | expr op expr
+expr: TK_IDENTIFIER 
+    | array_elem
+    | expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | expr '<' expr
+    | expr '>' expr
+    | expr '=' expr
+    | expr '&' expr
+    | expr '|' expr
+    | expr OPERATOR_LE expr
+    | expr OPERATOR_GE expr
+    | expr OPERATOR_EQ expr
+    | expr OPERATOR_DIF expr
     | '~' expr
     | '(' expr ')'
     | func_call
-    ;
-
-array_access: '[' expr ']'
-    |
-    ; 
-
-op: '+' | '-' | '*' | '/' | '<' | '>' | '=' | '&' | '|' | OPERATOR_LE | OPERATOR_GE | OPERATOR_EQ | OPERATOR_DIF
+    | value
     ;
 
 func_call: TK_IDENTIFIER '(' arg_list ')'
+    ;
 
 arg_list: expr
     | expr ',' arg_list
