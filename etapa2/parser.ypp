@@ -6,7 +6,6 @@ Matheus Adam dos Anjos
 
 %{
     #include "lex.yy.h"
-    #include "symbols.hpp"
 
     extern void yyerror(const char *s);
     extern int getLineNumber(void);
@@ -47,10 +46,10 @@ decl_list: decl decl_list
     |
     ;
 
-decl: var_decl ';' | func_decl
+decl: var_decl | func_decl
     ;
 
-var_decl: var_def '=' value | array_decl
+var_decl: var_def '=' value ';' | array_decl ';'
     ;
 
 var_def: type TK_IDENTIFIER
@@ -89,9 +88,9 @@ cmd: assign_cmd
     | if_cmd
     | while_do_cmd
     | do_while_cmd
-    | read_cmd ';'
-    | print_cmd ';'
-    | return_cmd ';'
+    | read_cmd
+    | print_cmd
+    | return_cmd
     | cmd_block
     | expr ';'
     | ';'
@@ -114,10 +113,10 @@ while_do_cmd: KW_WHILE expr KW_DO cmd
 do_while_cmd: KW_DO cmd KW_WHILE expr ';'
     ;
 
-read_cmd: KW_READ TK_IDENTIFIER
+read_cmd: KW_READ TK_IDENTIFIER ';'
     ;
 
-print_cmd: KW_PRINT print_list
+print_cmd: KW_PRINT print_list ';'
     ;
 
 print_list: print_item
@@ -127,7 +126,8 @@ print_list: print_item
 print_item: LIT_STRING | expr
     ;
 
-return_cmd: KW_RETURN expr;
+return_cmd: KW_RETURN expr ';'
+    ;
 
 expr: TK_IDENTIFIER 
     | array_elem
