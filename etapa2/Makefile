@@ -1,5 +1,5 @@
 #
-# 20/03/2025
+# 05/04/2025
 # UFRGS - INF01147 Compiladores - 2025/1
 # Matheus Adam dos Anjos
 #
@@ -9,6 +9,10 @@ CXXFLAGS = -std=c++11 -Wall
 
 TARGET = etapa2
 OBJ = parser.tab.o lex.yy.o main.o symbols.o
+
+GREEN  = \033[0;32m
+RED    = \033[0;31m
+NC     = \033[0m
 
 target: $(TARGET)
 
@@ -23,6 +27,18 @@ lex.yy.cpp: scanner.l
 
 parser.tab.cpp parser.tab.hpp: parser.ypp
 	bison -d parser.ypp
+
+test:
+	@echo "Running tests with $(TARGET)..."
+	@for file in tests/*; do \
+		printf "==> $$file ... "; \
+		./$(TARGET) $$file; \
+		RC=$$?; \
+		if [ $$RC -eq 0 ]; then printf "$(GREEN)[OK]$(NC)\n"; \
+		elif [ $$RC -eq 3 ]; then printf "$(RED)[ERROR]$(NC)\n"; \
+		else printf "[RC=$$RC]\n"; \
+		fi; \
+	done
 
 clean:
 	rm $(TARGET) lex.yy.cpp parser.tab.cpp parser.tab.hpp *.o
