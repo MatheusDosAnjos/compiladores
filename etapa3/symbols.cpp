@@ -14,9 +14,9 @@ using namespace std;
 
 string _reverseNumericString(string text);
 
-map <string, SYMBOL*> symbolTable;
+map <string, Symbol*> symbolTable;
 
-SYMBOL* addSymbol(SymbolType type, char* text) {
+Symbol* addSymbol(SymbolType type, char* text) {
     string txtString = string(text);
 
     if (type == INT || type == REAL) {
@@ -27,7 +27,7 @@ SYMBOL* addSymbol(SymbolType type, char* text) {
         return symbolTable[txtString];
     }
 
-    SYMBOL* symbol = new SYMBOL(type, txtString);
+    Symbol* symbol = new Symbol(type, txtString);
     symbolTable[txtString] = symbol;
 
     return symbol;

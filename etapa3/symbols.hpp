@@ -17,9 +17,9 @@ struct Symbol {
     SymbolType type;
     std::string text;
     public: Symbol(SymbolType t, std::string s): type(t), text(s) {}
-} typedef SYMBOL;
+};
 
-SYMBOL* addSymbol(SymbolType type, char* text);
+Symbol* addSymbol(SymbolType type, char* text);
 void printSymbolTable(void);
 
 #endif
