@@ -1,0 +1,14 @@
+// scalar variables
+byte a = 10;
+int b = 100;
+real c = 3/14;
+
+// empty arrays
+byte arr1[5];
+int arr2[10];
+real arr3[3];
+
+// initialized arrays
+byte arr1[3] = 1, 2, 3;
+int arr2[5] = 10, 20, 30, 40, 50;
+real arr3[2] = 1/1, 2/2;

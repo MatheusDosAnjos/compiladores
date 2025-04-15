@@ -1,0 +1,170 @@
+/*
+20/03/2025
+UFRGS - INF01147 Compiladores - 2025/1
+Matheus Adam dos Anjos
+*/
+
+%{
+    #include "lex.yy.h"
+
+    extern void yyerror(const char *s);
+    extern int getLineNumber(void);
+%}
+
+%token KW_BYTE
+%token KW_INT
+%token KW_REAL
+%token KW_IF
+%token KW_ELSE
+%token KW_DO
+%token KW_WHILE
+%token KW_READ
+%token KW_PRINT
+%token KW_RETURN
+%token OPERATOR_LE
+%token OPERATOR_GE
+%token OPERATOR_EQ
+%token OPERATOR_DIF
+%token TK_IDENTIFIER
+%token LIT_INT
+%token LIT_CHAR
+%token LIT_REAL
+%token LIT_STRING
+%token TOKEN_ERROR
+
+%right '=' '~'
+%left '&' '|'
+%left '<' '>' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF
+%left '+' '-'
+%left '*' '/'
+
+%%
+
+program: decl_list
+
+decl_list: decl decl_list
+    |
+    ;
+
+decl: var_decl | func_decl
+    ;
+
+var_decl: var_def '=' value ';' | array_decl ';'
+    ;
+
+var_def: type TK_IDENTIFIER
+    ;
+
+type: KW_BYTE | KW_INT | KW_REAL
+    ;
+
+value: LIT_INT | LIT_CHAR | LIT_REAL
+    ;
+
+array_decl: var_def '[' LIT_INT ']'
+    | var_def '[' LIT_INT ']' '=' array_init
+    ;
+
+array_init: value
+    | value ',' array_init
+    ;
+
+func_decl: var_def '(' param_list ')' cmd_block
+    ;
+
+param_list: param_item
+    |
+    ;
+
+param_item: var_def
+    | var_def ',' param_item
+    ;
+
+cmd_block: '{' cmd_list '}'
+    ;
+
+cmd_list: cmd cmd_list
+    |
+    ;
+
+cmd: assign_cmd
+    | if_cmd
+    | while_do_cmd
+    | do_while_cmd
+    | read_cmd
+    | print_cmd
+    | return_cmd
+    | cmd_block
+    | ';'
+    ;
+
+assign_cmd: TK_IDENTIFIER '=' expr ';'
+    | array_elem '=' expr ';'
+    ;
+
+array_elem: TK_IDENTIFIER '[' expr ']'
+    ;
+
+if_cmd: KW_IF '(' expr ')' cmd
+    | KW_IF '(' expr ')' cmd KW_ELSE cmd
+    ;
+
+while_do_cmd: KW_WHILE expr KW_DO cmd
+    ;
+
+do_while_cmd: KW_DO cmd KW_WHILE expr ';'
+    ;
+
+read_cmd: KW_READ TK_IDENTIFIER ';'
+    ;
+
+print_cmd: KW_PRINT print_list ';'
+    ;
+
+print_list: print_item
+    | print_item print_list
+    ;
+
+print_item: LIT_STRING | expr
+    ;
+
+return_cmd: KW_RETURN expr ';'
+    ;
+
+expr: TK_IDENTIFIER 
+    | array_elem
+    | expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | expr '<' expr
+    | expr '>' expr
+    | expr '&' expr
+    | expr '|' expr
+    | expr OPERATOR_LE expr
+    | expr OPERATOR_GE expr
+    | expr OPERATOR_EQ expr
+    | expr OPERATOR_DIF expr
+    | '~' expr
+    | '(' expr ')'
+    | func_call
+    | value
+    ;
+
+func_call: TK_IDENTIFIER '(' arg_list ')'
+    ;
+
+arg_list: arg_item
+    |
+    ;
+
+arg_item: expr
+    | expr ',' arg_item
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Syntax error at line: %d\n", getLineNumber());
+    exit(3);
+}
