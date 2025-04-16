@@ -19,7 +19,7 @@ map <string, Symbol*> symbolTable;
 Symbol* addSymbol(SymbolType type, char* text) {
     string txtString = string(text);
 
-    if (type == INT || type == REAL) {
+    if (type == SymbolType::INT || type == SymbolType::REAL) {
         txtString = _reverseNumericString(txtString);
     }
     
@@ -53,19 +53,19 @@ void printSymbolTable() {
 
     for (auto const& x : symbolTable) {
         switch (x.second->type) {
-            case IDENTIFIER:
+            case SymbolType::IDENTIFIER:
                 fprintf(stderr, "Symbol[IDENTIFIER, ");
                 break;
-            case INT:
+            case SymbolType::INT:
                 fprintf(stderr, "Symbol[INT, ");
                 break;
-            case CHAR:
+            case SymbolType::CHAR:
                 fprintf(stderr, "Symbol[CHAR, ");
                 break;
-            case REAL:
+            case SymbolType::REAL:
                 fprintf(stderr, "Symbol[REAL, ");
                 break;
-            case STRING:
+            case SymbolType::STRING:
                 fprintf(stderr, "Symbol[STRING, ");
         }
 

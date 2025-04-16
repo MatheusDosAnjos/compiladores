@@ -9,7 +9,7 @@ Matheus Adam dos Anjos
 
 #include <string>
 
-enum SymbolType {
+enum class SymbolType {
     IDENTIFIER, INT, CHAR, REAL, STRING
 };
 
