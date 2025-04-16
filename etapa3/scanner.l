@@ -5,6 +5,7 @@ Matheus Adam dos Anjos
 */
 
 %{
+    #include "ast.hpp"
     #include "parser.tab.hpp"
     #include "symbols.hpp"
 
@@ -38,12 +39,12 @@ DIGIT  [0-9]
 "=="                        { return OPERATOR_EQ; }
 "!="                        { return OPERATOR_DIF; }
 
-[a-zA-Z_][a-zA-Z0-9_]*      { addSymbol(SymbolType::IDENTIFIER, yytext); return TK_IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]*      { yylval.symbol = addSymbol(SymbolType::IDENTIFIER, yytext); return TK_IDENTIFIER; }
 
-{DIGIT}+\/{DIGIT}+          { addSymbol(SymbolType::REAL, yytext); return LIT_REAL; }
-{DIGIT}+                    { addSymbol(SymbolType::INT, yytext); return LIT_INT; }
-'[^'\n\t]'                  { addSymbol(SymbolType::CHAR, yytext); return LIT_CHAR; }
-\"(\\.|[^\\"])*\"           { addSymbol(SymbolType::STRING, yytext); return LIT_STRING; }
+{DIGIT}+\/{DIGIT}+          { yylval.symbol = addSymbol(SymbolType::REAL, yytext); return LIT_REAL; }
+{DIGIT}+                    { yylval.symbol = addSymbol(SymbolType::INT, yytext); return LIT_INT; }
+'[^'\n\t]'                  { yylval.symbol = addSymbol(SymbolType::CHAR, yytext); return LIT_CHAR; }
+\"(\\.|[^\\"])*\"           { yylval.symbol = addSymbol(SymbolType::STRING, yytext); return LIT_STRING; }
 
 [ \t\r]+
 \n                          { lineNumber++; }

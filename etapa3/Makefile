@@ -7,8 +7,8 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
-TARGET = etapa2
-OBJ = parser.tab.o lex.yy.o main.o symbols.o
+TARGET = etapa3
+OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o
 
 GREEN  = \033[0;32m
 RED    = \033[0;31m
@@ -22,7 +22,7 @@ $(TARGET): $(OBJ)
 %.o: %.cpp 
 	$(CXX) $(CXXFLAGS) $< -c
 
-lex.yy.cpp: scanner.l
+lex.yy.cpp: scanner.l parser.tab.hpp
 	flex -o lex.yy.cpp scanner.l 
 
 parser.tab.cpp parser.tab.hpp: parser.ypp

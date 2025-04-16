@@ -27,10 +27,5 @@ int main(int argc, char** argv) {
 
     yyparse();
 
-    fprintf(stderr, "Parsing completed successfully!\n");
-    fprintf(stderr, "Line number: %d lines\n", getLineNumber());
-    
-    printSymbolTable();
-
     exit(0);
 }
