@@ -49,8 +49,8 @@ Matheus Adam dos Anjos
 
 %type<ast> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
 
-%type<ast> cmd_list arg_list print_item
-%type<astvec> arg_item print_list cmd_item
+%type<astvec> cmd_list print_list arg_list
+%type<ast> cmd_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -75,7 +75,9 @@ var_decl: var_def '=' value ';' | array_decl ';'
 var_def: type TK_IDENTIFIER
     ;
 
-type: KW_BYTE | KW_INT | KW_REAL
+type: KW_BYTE                                       { $$ = createAstNode(AstNodeType::BYTE, {}); }
+    | KW_INT                                        { $$ = createAstNode(AstNodeType::INT, {}); }
+    | KW_REAL                                       { $$ = createAstNode(AstNodeType::REAL, {}); }
     ;
 
 value: LIT_INT                                      { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
@@ -102,15 +104,15 @@ param_item: var_def
     | var_def ',' param_item
     ;
 
-cmd_block: '{' cmd_list '}'                         { $$ = $2; }
+cmd_block: '{' cmd_item '}'                         { $$ = $2; }
     ;
 
-cmd_list: cmd_item                                  { $$ = createAstNode(AstNodeType::CMD_LIST, *$1); }
+cmd_item: cmd_list                                  { $$ = createAstNode(AstNodeType::CMD_LIST, *$1); }
     |                                               { $$ = nullptr; }
     ;
 
-cmd_item: cmd                                       { $$ = createAstNodeList($1); }
-    | cmd cmd_item                                  { $$ = insertAstNodeItem($1, $2); }
+cmd_list: cmd                                       { $$ = createAstNodeList($1); }
+    | cmd cmd_list                                  { $$ = insertAstNodeItem($1, $2); }
     ;
 
 cmd: assign_cmd
@@ -178,15 +180,15 @@ expr: TK_IDENTIFIER                                 { $$ = createAstNode(AstNode
     | value
     ;
 
-func_call: TK_IDENTIFIER '(' arg_list ')'           { $$ = createAstNode(AstNodeType::FUNC_CALL, {$3}, $1); }
+func_call: TK_IDENTIFIER '(' arg_item ')'           { $$ = createAstNode(AstNodeType::FUNC_CALL, {$3}, $1); }
     ;
 
-arg_list: arg_item                                  { $$ = createAstNode(AstNodeType::ARG_LIST, *$1); }
+arg_item: arg_list                                  { $$ = createAstNode(AstNodeType::ARG_LIST, *$1); }
     |                                               { $$ = nullptr; }
     ;
 
-arg_item: expr                                      { $$ = createAstNodeList($1); }
-    | expr ',' arg_item                             { $$ = insertAstNodeItem($1, $3); }
+arg_list: expr                                      { $$ = createAstNodeList($1); }
+    | expr ',' arg_list                             { $$ = insertAstNodeItem($1, $3); }
     ;
 
 %%
