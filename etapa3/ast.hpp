@@ -14,7 +14,9 @@ Matheus Adam dos Anjos
 
 enum class AstNodeType {
     UNKNOWN, SYMBOL, DECL_LIST,
-    ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT, ASSIGN,
+    ASSIGN,
+    ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,
+    FUNC_CALL, ARG_LIST
 };
 
 struct AstNode {
@@ -26,6 +28,17 @@ struct AstNode {
 
 inline AstNode* createAstNode(AstNodeType t, const std::vector<AstNode*> c, Symbol* s = nullptr) {
     return new AstNode(t, c, s);
+}
+
+inline std::vector<AstNode*>* createAstNodeList(AstNode* node) {
+    auto nodeList = new std::vector<AstNode*>();
+    nodeList->push_back(node);
+    return nodeList;
+}
+
+inline std::vector<AstNode*>* insertAstNodeItem(AstNode* node, std::vector<AstNode*>* nodeList) {
+    nodeList->insert(nodeList->begin(), node);
+    return nodeList;
 }
 
 void printAst(AstNode* node, int level = 0);

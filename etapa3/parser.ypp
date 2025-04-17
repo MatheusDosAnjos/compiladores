@@ -5,6 +5,8 @@ Matheus Adam dos Anjos
 */
 
 %{
+    #include <vector>
+
     #include "ast.hpp"
     #include "lex.yy.h"
     #include "symbols.hpp"
@@ -18,6 +20,7 @@ Matheus Adam dos Anjos
 %union
 {
 	AstNode* ast;
+    std::vector<AstNode*>* astvec;
 	Symbol* symbol;
 };
 
@@ -42,7 +45,9 @@ Matheus Adam dos Anjos
 %token<symbol> LIT_STRING
 %token TOKEN_ERROR
 
-%type<ast> expr value
+%type<ast> value
+%type<ast> expr func_call arg_list
+%type<astvec> arg_item 
 
 %right '=' '~'
 %left '&' '|'
@@ -112,7 +117,7 @@ cmd: assign_cmd
     | ';'
     ;
 
-assign_cmd: TK_IDENTIFIER '=' expr ';'          { printAst($3); }
+assign_cmd: TK_IDENTIFIER '=' expr ';'              { printAst($3); }
     | array_elem '=' expr ';'
     ;
 
@@ -145,35 +150,35 @@ print_item: LIT_STRING | expr
 return_cmd: KW_RETURN expr ';'
     ;
 
-expr: TK_IDENTIFIER                 { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+expr: TK_IDENTIFIER                                 { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
     | array_elem
-    | expr '+' expr                 { $$ = createAstNode(AstNodeType::ADD, {$1, $3}); }
-    | expr '-' expr                 { $$ = createAstNode(AstNodeType::SUB, {$1, $3}); }
-    | expr '*' expr                 { $$ = createAstNode(AstNodeType::MULT, {$1, $3}); }
-    | expr '/' expr                 { $$ = createAstNode(AstNodeType::DIV, {$1, $3}); }
-    | expr '<' expr                 { $$ = createAstNode(AstNodeType::LESS, {$1, $3}); }
-    | expr '>' expr                 { $$ = createAstNode(AstNodeType::GREATER, {$1, $3}); }
-    | expr '&' expr                 { $$ = createAstNode(AstNodeType::AND, {$1, $3}); }
-    | expr '|' expr                 { $$ = createAstNode(AstNodeType::OR, {$1, $3}); }
-    | expr OPERATOR_LE expr         { $$ = createAstNode(AstNodeType::LE, {$1, $3}); }
-    | expr OPERATOR_GE expr         { $$ = createAstNode(AstNodeType::GE, {$1, $3}); }
-    | expr OPERATOR_EQ expr         { $$ = createAstNode(AstNodeType::EQ, {$1, $3}); }
-    | expr OPERATOR_DIF expr        { $$ = createAstNode(AstNodeType::DIF, {$1, $3}); }
-    | '~' expr
-    | '(' expr ')'
+    | expr '+' expr                                 { $$ = createAstNode(AstNodeType::ADD, {$1, $3}); }
+    | expr '-' expr                                 { $$ = createAstNode(AstNodeType::SUB, {$1, $3}); }
+    | expr '*' expr                                 { $$ = createAstNode(AstNodeType::MULT, {$1, $3}); }
+    | expr '/' expr                                 { $$ = createAstNode(AstNodeType::DIV, {$1, $3}); }
+    | expr '<' expr                                 { $$ = createAstNode(AstNodeType::LESS, {$1, $3}); }
+    | expr '>' expr                                 { $$ = createAstNode(AstNodeType::GREATER, {$1, $3}); }
+    | expr '&' expr                                 { $$ = createAstNode(AstNodeType::AND, {$1, $3}); }
+    | expr '|' expr                                 { $$ = createAstNode(AstNodeType::OR, {$1, $3}); }
+    | expr OPERATOR_LE expr                         { $$ = createAstNode(AstNodeType::LE, {$1, $3}); }
+    | expr OPERATOR_GE expr                         { $$ = createAstNode(AstNodeType::GE, {$1, $3}); }
+    | expr OPERATOR_EQ expr                         { $$ = createAstNode(AstNodeType::EQ, {$1, $3}); }
+    | expr OPERATOR_DIF expr                        { $$ = createAstNode(AstNodeType::DIF, {$1, $3}); }
+    | '~' expr                                      { $$ = createAstNode(AstNodeType::NOT, {$2}); }
+    | '(' expr ')'                                  { $$ = $2; }
     | func_call
     | value
     ;
 
-func_call: TK_IDENTIFIER '(' arg_list ')'
+func_call: TK_IDENTIFIER '(' arg_list ')'           { $$ = createAstNode(AstNodeType::FUNC_CALL, {$3}, $1); }
     ;
 
-arg_list: arg_item
-    |
+arg_list: arg_item                                  { $$ = createAstNode(AstNodeType::ARG_LIST, *$1); }
+    |                                               { $$ = nullptr; }
     ;
 
-arg_item: expr
-    | expr ',' arg_item
+arg_item: expr                                      { $$ = createAstNodeList($1); }
+    | expr ',' arg_item                             { $$ = insertAstNodeItem($1, $3); }
     ;
 
 %%

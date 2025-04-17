@@ -15,7 +15,9 @@ using namespace std;
 
 const char* astNodeTypeLabel[] = {
     "UNKNOWN", "SYMBOL", "DECL_LIST",
-    "ADD", "SUB", "MULT", "DIV", "LESS", "GREATER", "AND", "OR", "LE", "GE", "EQ", "DIF", "NOT", "ASSIGN"
+    "ASSIGN",
+    "ADD", "SUB", "MULT", "DIV", "LESS", "GREATER", "AND", "OR", "LE", "GE", "EQ", "DIF", "NOT",
+    "FUNC_CALL", "ARG_LIST"
 };
 
 void printAst(AstNode* node, int level) {
