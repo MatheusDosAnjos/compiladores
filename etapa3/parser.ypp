@@ -19,8 +19,8 @@ Matheus Adam dos Anjos
 
 %union
 {
-	AstNode* ast;
-    std::vector<AstNode*>* astvec;
+	AstNode* node;
+    std::vector<AstNode*>* nodevec;
 	Symbol* symbol;
 };
 
@@ -45,12 +45,12 @@ Matheus Adam dos Anjos
 %token<symbol> LIT_STRING
 %token TOKEN_ERROR
 
-%type<ast> type value array_elem expr func_call
+%type<node> type value array_elem expr func_call
 
-%type<ast> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
+%type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
 
-%type<astvec> cmd_list print_list arg_list
-%type<ast> cmd_item print_item arg_item
+%type<nodevec> cmd_list print_list arg_list
+%type<node> cmd_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -72,7 +72,7 @@ decl: var_decl | func_decl
 var_decl: var_def '=' value ';' | array_decl ';'
     ;
 
-var_def: type TK_IDENTIFIER
+var_def: type TK_IDENTIFIER                         
     ;
 
 type: KW_BYTE                                       { $$ = createAstNode(AstNodeType::BYTE, {}); }
