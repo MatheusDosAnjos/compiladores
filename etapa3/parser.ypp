@@ -45,9 +45,12 @@ Matheus Adam dos Anjos
 %token<symbol> LIT_STRING
 %token TOKEN_ERROR
 
-%type<ast> value
-%type<ast> expr func_call arg_list
-%type<astvec> arg_item 
+%type<ast> type value array_elem expr func_call
+
+%type<ast> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
+
+%type<ast> cmd_list arg_list print_item
+%type<astvec> arg_item print_list cmd_item
 
 %right '=' '~'
 %left '&' '|'
@@ -88,7 +91,7 @@ array_init: value
     | value ',' array_init
     ;
 
-func_decl: var_def '(' param_list ')' cmd_block
+func_decl: var_def '(' param_list ')' cmd_block   { printAst($5); }
     ;
 
 param_list: param_item
@@ -99,11 +102,15 @@ param_item: var_def
     | var_def ',' param_item
     ;
 
-cmd_block: '{' cmd_list '}'
+cmd_block: '{' cmd_list '}'                         { $$ = $2; }
     ;
 
-cmd_list: cmd cmd_list
-    |
+cmd_list: cmd_item                                  { $$ = createAstNode(AstNodeType::CMD_LIST, *$1); }
+    |                                               { $$ = nullptr; }
+    ;
+
+cmd_item: cmd                                       { $$ = createAstNodeList($1); }
+    | cmd cmd_item                                  { $$ = insertAstNodeItem($1, $2); }
     ;
 
 cmd: assign_cmd
@@ -114,40 +121,41 @@ cmd: assign_cmd
     | print_cmd
     | return_cmd
     | cmd_block
-    | ';'
+    | ';'                                           { $$ = nullptr; }
     ;
 
-assign_cmd: TK_IDENTIFIER '=' expr ';'              { printAst($3); }
+assign_cmd: TK_IDENTIFIER '=' expr ';'              { $$ = createAstNode(AstNodeType::ASSIGN, {$3}, $1); }
     | array_elem '=' expr ';'
     ;
 
-array_elem: TK_IDENTIFIER '[' expr ']'
+array_elem: TK_IDENTIFIER '[' expr ']'              { $$ = createAstNode(AstNodeType::ARRAY_ELEM, {$3}, $1); }
     ;
 
-if_cmd: KW_IF '(' expr ')' cmd
-    | KW_IF '(' expr ')' cmd KW_ELSE cmd
+if_cmd: KW_IF '(' expr ')' cmd                      { $$ = createAstNode(AstNodeType::IF, {$3, $5}); }
+    | KW_IF '(' expr ')' cmd KW_ELSE cmd            { $$ = createAstNode(AstNodeType::IF_ELSE, {$3, $5, $7}); }
     ;
 
-while_do_cmd: KW_WHILE expr KW_DO cmd
+while_do_cmd: KW_WHILE expr KW_DO cmd               { $$ = createAstNode(AstNodeType::WHILE_DO, {$2, $4}); }
     ;
 
-do_while_cmd: KW_DO cmd KW_WHILE expr ';'
+do_while_cmd: KW_DO cmd KW_WHILE expr ';'           { $$ = createAstNode(AstNodeType::DO_WHILE, {$2, $4}); }
     ;
 
-read_cmd: KW_READ TK_IDENTIFIER ';'
+read_cmd: KW_READ TK_IDENTIFIER ';'                 { $$ = createAstNode(AstNodeType::READ, {}, $2); }
     ;
 
-print_cmd: KW_PRINT print_list ';'
+print_cmd: KW_PRINT print_list ';'                  { $$ = createAstNode(AstNodeType::PRINT, *$2); }
     ;
 
-print_list: print_item
-    | print_item print_list
+print_list: print_item                              { $$ = createAstNodeList($1); }
+    | print_item print_list                         { $$ = insertAstNodeItem($1, $2); }
     ;
 
-print_item: LIT_STRING | expr
+print_item: LIT_STRING                              { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    | expr
     ;
 
-return_cmd: KW_RETURN expr ';'
+return_cmd: KW_RETURN expr ';'                      { $$ = createAstNode(AstNodeType::RETURN, {$2}); }
     ;
 
 expr: TK_IDENTIFIER                                 { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }

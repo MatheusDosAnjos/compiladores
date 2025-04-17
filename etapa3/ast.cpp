@@ -15,7 +15,9 @@ using namespace std;
 
 const char* astNodeTypeLabel[] = {
     "UNKNOWN", "SYMBOL", "DECL_LIST",
-    "ASSIGN",
+    "CMD_LIST",
+    "ASSIGN", "ARRAY_ELEM",
+    "IF", "IF_ELSE", "WHILE_DO", "DO_WHILE", "READ", "PRINT", "RETURN",
     "ADD", "SUB", "MULT", "DIV", "LESS", "GREATER", "AND", "OR", "LE", "GE", "EQ", "DIF", "NOT",
     "FUNC_CALL", "ARG_LIST"
 };
