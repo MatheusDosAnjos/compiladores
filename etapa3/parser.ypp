@@ -48,8 +48,8 @@ Matheus Adam dos Anjos
 %type<node> decl var_decl var_def array_decl func_decl
 %type<node> type value array_elem expr func_call
 %type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
-%type<nodevec> decl_list cmd_list param_list print_list arg_list
-%type<node> decl_item cmd_item param_item print_item arg_item
+%type<nodevec> decl_list array_init_list cmd_list param_list print_list arg_list
+%type<node> decl_item array_init cmd_item param_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -90,12 +90,15 @@ value: LIT_INT                                      { $$ = createAstNode(AstNode
     | LIT_REAL                                      { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
     ;
 
-array_decl: var_def '[' LIT_INT ']'
-    | var_def '[' LIT_INT ']' '=' array_init
+array_decl: var_def '[' LIT_INT ']'                 { $$ = createAstNode(AstNodeType::ARRAY_DECL, {$1}, $3); }
+    | var_def '[' LIT_INT ']' '=' array_init        { $$ = createAstNode(AstNodeType::ARRAY_DECL, {$1, $6}, $3); }
     ;
 
-array_init: value
-    | value ',' array_init
+array_init: array_init_list                         { $$ = createAstNode(AstNodeType::ARRAY_INIT, *$1); }
+    ;
+
+array_init_list: value                              { $$ = createAstNodeList($1); }
+    | value ',' array_init_list                     { $$ = insertAstNodeItem($1, $3); }
     ;
 
 func_decl: var_def '(' param_item ')' cmd_block     { $$ = createAstNode(AstNodeType::FUNC_DECL, {$1, $3, $5}); }
