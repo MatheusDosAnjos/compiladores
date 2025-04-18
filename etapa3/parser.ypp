@@ -48,8 +48,8 @@ Matheus Adam dos Anjos
 %type<node> decl var_decl var_def array_decl func_decl
 %type<node> type value array_elem expr func_call
 %type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
-%type<nodevec> decl_item cmd_list param_list print_list arg_list
-%type<node> decl_list cmd_item param_item print_item arg_item
+%type<nodevec> decl_list cmd_list param_list print_list arg_list
+%type<node> decl_item cmd_item param_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -59,15 +59,15 @@ Matheus Adam dos Anjos
 
 %%
 
-program: decl_list                                  { printAst($1); }
+program: decl_item                                  { printAst($1); }
     ;
 
-decl_list: decl_item                                { $$ = createAstNode(AstNodeType::DECL_LIST, *$1); }
+decl_item: decl_list                                { $$ = createAstNode(AstNodeType::DECL_LIST, *$1); }
     |                                               { $$ = nullptr; }
     ;
 
-decl_item: decl                                     { $$ = createAstNodeList($1); }
-    | decl decl_item                                { $$ = insertAstNodeItem($1, $2); }
+decl_list: decl                                     { $$ = createAstNodeList($1); }
+    | decl decl_list                                { $$ = insertAstNodeItem($1, $2); }
     ;
 
 decl: var_decl | func_decl
