@@ -45,12 +45,11 @@ Matheus Adam dos Anjos
 %token<symbol> LIT_STRING
 %token TOKEN_ERROR
 
+%type<node> var_decl var_def array_decl func_decl
 %type<node> type value array_elem expr func_call
-
 %type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
-
-%type<nodevec> cmd_list print_list arg_list
-%type<node> cmd_item print_item arg_item
+%type<nodevec> cmd_list param_list print_list arg_list
+%type<node> cmd_item param_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -66,13 +65,13 @@ decl_list: decl decl_list
     |
     ;
 
-decl: var_decl | func_decl
+decl: var_decl | func_decl                          { printAst($1); }
     ;
 
 var_decl: var_def '=' value ';' | array_decl ';'
     ;
 
-var_def: type TK_IDENTIFIER                         
+var_def: type TK_IDENTIFIER                         { $$ = createAstNode(AstNodeType::VAR_DEF, {$1}, $2); }
     ;
 
 type: KW_BYTE                                       { $$ = createAstNode(AstNodeType::BYTE, {}); }
@@ -93,15 +92,15 @@ array_init: value
     | value ',' array_init
     ;
 
-func_decl: var_def '(' param_list ')' cmd_block   { printAst($5); }
+func_decl: var_def '(' param_item ')' cmd_block     { $$ = createAstNode(AstNodeType::FUNC_DECL, {$1, $3, $5}); }
     ;
 
-param_list: param_item
-    |
+param_item: param_list                              { $$ = createAstNode(AstNodeType::PARAM_LIST, *$1); }  
+    |                                               { $$ = nullptr; }
     ;
 
-param_item: var_def
-    | var_def ',' param_item
+param_list: var_def                                 { $$ = createAstNodeList($1); }
+    | var_def ',' param_list                        { $$ = insertAstNodeItem($1, $3); }
     ;
 
 cmd_block: '{' cmd_item '}'                         { $$ = $2; }
