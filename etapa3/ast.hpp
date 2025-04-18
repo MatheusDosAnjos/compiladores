@@ -15,8 +15,7 @@ Matheus Adam dos Anjos
 enum class AstNodeType {
     UNKNOWN, SYMBOL, DECL_LIST, BYTE, INT, REAL,
     VAR_DECL, VAR_DEF, ARRAY_DECL, ARRAY_INIT, FUNC_DECL, PARAM_LIST,
-    CMD_LIST,
-    ASSIGN, ARRAY_ELEM, IF, IF_ELSE, WHILE_DO, DO_WHILE, READ, PRINT, RETURN,
+    CMD_LIST, ASSIGN, ARRAY_ELEM, IF, IF_ELSE, WHILE_DO, DO_WHILE, READ, PRINT, RETURN,
     ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,
     FUNC_CALL, ARG_LIST
 };
@@ -43,6 +42,7 @@ inline std::vector<AstNode*>* insertAstNodeItem(AstNode* node, std::vector<AstNo
     return nodeList;
 }
 
+std::string decompileAstNode(AstNode* node);
 void printAst(AstNode* node, int level = 0);
 
 #endif

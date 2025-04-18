@@ -45,11 +45,11 @@ Matheus Adam dos Anjos
 %token<symbol> LIT_STRING
 %token TOKEN_ERROR
 
-%type<node> decl var_decl var_def array_decl func_decl
+%type<node> program decl var_decl var_def array_decl func_decl
 %type<node> type value array_elem expr func_call
 %type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
 %type<nodevec> decl_list array_init_list cmd_list param_list print_list arg_list
-%type<node> decl_item array_init cmd_item param_item print_item arg_item
+%type<node> array_init cmd_item param_item print_item arg_item
 
 %right '=' '~'
 %left '&' '|'
@@ -59,10 +59,7 @@ Matheus Adam dos Anjos
 
 %%
 
-program: decl_item                                  { printAst($1); }
-    ;
-
-decl_item: decl_list                                { $$ = createAstNode(AstNodeType::DECL_LIST, *$1); }
+program: decl_list                                  { astRoot = createAstNode(AstNodeType::DECL_LIST, *$1); }
     |                                               { $$ = nullptr; }
     ;
 
