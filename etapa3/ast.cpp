@@ -5,17 +5,17 @@ Matheus Adam dos Anjos
 */
 
 #include <algorithm>
-#include <string>
 #include <map>
-
+#include <sstream>
+#include <string>
 #include "symbols.hpp"
 #include "ast.hpp"
 
 using namespace std;
 
 const char* astNodeTypeLabel[] = {
-    "UNKNOWN", "SYMBOL", "DECL_LIST", "BYTE", "INT", "REAL",
-    "VAR_DECL", "VAR_DEF", "ARRAY_DECL", "ARRAY_INIT", "FUNC_DECL", "PARAM_LIST",
+    "DECL_LIST", "VAR_DECL", "ARRAY_DECL", "ARRAY_INIT", "FUNC_DECL", "PARAM_LIST",
+    "VAR_DEF", "SYMBOL", "BYTE", "INT", "REAL",
     "CMD_LIST","ASSIGN", "ARRAY_ELEM", "IF", "IF_ELSE", "WHILE_DO", "DO_WHILE", "READ", "PRINT", "RETURN",
     "ADD", "SUB", "MULT", "DIV", "LESS", "GREATER", "AND", "OR", "LE", "GE", "EQ", "DIF", "NOT",
     "FUNC_CALL", "ARG_LIST"
@@ -38,4 +38,177 @@ void printAst(AstNode* node, int level) {
     for (AstNode* child : node->children) {
         printAst(child, level + 1);
     }
+}
+
+string decompileAstNode(AstNode* node) {
+    if (!node) return "";
+
+    ostringstream result;
+
+    switch (node->type) {
+        case AstNodeType::DECL_LIST:
+            for (AstNode* child : node->children) {
+                result << decompileAstNode(child) << "\n";
+            }
+            break;
+
+        case AstNodeType::VAR_DECL:
+            result << decompileAstNode(node->children[0]) << " = " << decompileAstNode(node->children[1]) << ";";
+            break;
+
+        case AstNodeType::ARRAY_DECL:
+            result << decompileAstNode(node->children[0]) << "[" << node->symbol->text << "]";
+            if (node->children.size() > 1) {
+                result << " = " << decompileAstNode(node->children[1]);
+            }
+            result << ";";
+            break;
+
+        case AstNodeType::ARRAY_INIT:
+        case AstNodeType::PARAM_LIST:
+        case AstNodeType::ARG_LIST:
+            for (size_t i = 0; i < node->children.size(); ++i) {
+                result << decompileAstNode(node->children[i]);
+                if (i < node->children.size() - 1) result << ", ";
+            }
+            break;
+
+        case AstNodeType::FUNC_DECL:
+            result << decompileAstNode(node->children[0]) << "(" << 
+                decompileAstNode(node->children[1]) << ") " << decompileAstNode(node->children[2]);
+            break;
+
+        case AstNodeType::VAR_DEF:
+            result << decompileAstNode(node->children[0]) << " " << node->symbol->text;
+            break;
+
+        case AstNodeType::SYMBOL:
+            result << node->symbol->text;
+            break;
+
+        case AstNodeType::BYTE:
+            result << "byte";
+            break;
+
+        case AstNodeType::INT:
+            result << "int";
+            break;
+
+        case AstNodeType::REAL:
+            result << "real";
+            break;
+
+        case AstNodeType::CMD_LIST:
+            result << "{\n";
+            for (AstNode* child : node->children) {
+                result << decompileAstNode(child) << "\n";
+            }
+            result << "}";
+            break;
+
+        case AstNodeType::ASSIGN:
+            result << node->symbol->text << " = " << decompileAstNode(node->children[0]) << ";";
+            break;
+
+        case AstNodeType::ARRAY_ELEM:
+            result << node->symbol->text << "[" << decompileAstNode(node->children[0]) << "]";
+            break;
+
+        case AstNodeType::IF:
+            result << "if (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]);
+            break;
+
+        case AstNodeType::IF_ELSE:
+            result << "if (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]) <<
+                      " else " << decompileAstNode(node->children[2]);
+            break;
+
+        case AstNodeType::WHILE_DO:
+            result << "while (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]);
+            break;
+
+        case AstNodeType::DO_WHILE:
+            result << "do " << decompileAstNode(node->children[0]) << " while (" << decompileAstNode(node->children[1]) <<
+                      ");";
+            break;
+
+        case AstNodeType::READ:
+            result << "read " << node->symbol->text << ";";
+            break;
+
+        case AstNodeType::PRINT:
+            result << "print";
+            for (size_t i = 0; i < node->children.size(); ++i) {
+                result << decompileAstNode(node->children[i]);
+                if (i < node->children.size() - 1) result << " ";
+            }
+            result << ";";
+            break;
+
+        case AstNodeType::RETURN:
+            result << "return " << decompileAstNode(node->children[0]) << ";";
+            break;
+
+        case AstNodeType::FUNC_CALL:
+            result << node->symbol->text << "(" << decompileAstNode(node->children[0]) << ")";
+            break;
+
+        case AstNodeType::ADD:
+            result << "(" << decompileAstNode(node->children[0]) << " << " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::SUB:
+            result << "(" << decompileAstNode(node->children[0]) << " - " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::MULT:
+            result << "(" << decompileAstNode(node->children[0]) << " * " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::DIV:
+            result << "(" << decompileAstNode(node->children[0]) << " / " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::LESS:
+            result << "(" << decompileAstNode(node->children[0]) << " < " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::GREATER:
+            result << "(" << decompileAstNode(node->children[0]) << " > " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::AND:
+            result << "(" << decompileAstNode(node->children[0]) << " & " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::OR:
+            result << "(" << decompileAstNode(node->children[0]) << " | " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::LE:
+            result << "(" << decompileAstNode(node->children[0]) << " <= " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::GE:
+            result << "(" << decompileAstNode(node->children[0]) << " >= " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::EQ:
+            result << "(" << decompileAstNode(node->children[0]) << " == " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::DIF:
+            result << "(" << decompileAstNode(node->children[0]) << " != " << decompileAstNode(node->children[1]) << ")";
+            break;
+
+        case AstNodeType::NOT:
+            result << "~" << decompileAstNode(node->children[0]);
+            break;
+
+        default:
+            result << "/* UNKNOWN NODE TYPE */";
+            break;
+    }
+
+    return result.str();
 }

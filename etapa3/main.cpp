@@ -6,12 +6,15 @@ Matheus Adam dos Anjos
 
 #include <stdio.h>
 
+#include "ast.hpp"
 #include "lex.yy.h"
 #include "symbols.hpp"
 
 extern int yyparse(void);
 extern int isRunning(void);
 extern int getLineNumber(void);
+
+extern AstNode* astRoot;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -26,6 +29,9 @@ int main(int argc, char** argv) {
     }
 
     yyparse();
+
+    // printAst(astRoot);
+    fprintf(stderr, "%s", decompileAstNode(astRoot).c_str());
 
     exit(0);
 }
