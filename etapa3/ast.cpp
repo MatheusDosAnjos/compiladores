@@ -13,6 +13,9 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
+string joinChildren(const vector<AstNode*>& children, const string& separator);
+string joinBinaryOp(const vector<AstNode*>& children, const string& op);
+
 const char* astNodeTypeLabel[] = {
     "DECL_LIST", "VAR_DECL", "ARRAY_DECL", "ARRAY_INIT", "FUNC_DECL", "PARAM_LIST",
     "VAR_DEF", "SYMBOL", "BYTE", "INT", "REAL",
@@ -67,10 +70,7 @@ string decompileAstNode(AstNode* node) {
         case AstNodeType::ARRAY_INIT:
         case AstNodeType::PARAM_LIST:
         case AstNodeType::ARG_LIST:
-            for (size_t i = 0; i < node->children.size(); ++i) {
-                result << decompileAstNode(node->children[i]);
-                if (i < node->children.size() - 1) result << ", ";
-            }
+            result << joinChildren(node->children, ", ");
             break;
 
         case AstNodeType::FUNC_DECL:
@@ -124,7 +124,7 @@ string decompileAstNode(AstNode* node) {
             break;
 
         case AstNodeType::WHILE_DO:
-            result << "while (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]);
+            result << "while (" << decompileAstNode(node->children[0]) << ") do\n" << decompileAstNode(node->children[1]);
             break;
 
         case AstNodeType::DO_WHILE:
@@ -153,53 +153,18 @@ string decompileAstNode(AstNode* node) {
             result << node->symbol->text << "(" << decompileAstNode(node->children[0]) << ")";
             break;
 
-        case AstNodeType::ADD:
-            result << "(" << decompileAstNode(node->children[0]) << " << " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::SUB:
-            result << "(" << decompileAstNode(node->children[0]) << " - " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::MULT:
-            result << "(" << decompileAstNode(node->children[0]) << " * " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::DIV:
-            result << "(" << decompileAstNode(node->children[0]) << " / " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::LESS:
-            result << "(" << decompileAstNode(node->children[0]) << " < " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::GREATER:
-            result << "(" << decompileAstNode(node->children[0]) << " > " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::AND:
-            result << "(" << decompileAstNode(node->children[0]) << " & " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::OR:
-            result << "(" << decompileAstNode(node->children[0]) << " | " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::LE:
-            result << "(" << decompileAstNode(node->children[0]) << " <= " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::GE:
-            result << "(" << decompileAstNode(node->children[0]) << " >= " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::EQ:
-            result << "(" << decompileAstNode(node->children[0]) << " == " << decompileAstNode(node->children[1]) << ")";
-            break;
-
-        case AstNodeType::DIF:
-            result << "(" << decompileAstNode(node->children[0]) << " != " << decompileAstNode(node->children[1]) << ")";
-            break;
+        case AstNodeType::ADD:      result << joinBinaryOp(node->children, "+"); break;
+        case AstNodeType::SUB:      result << joinBinaryOp(node->children, "-"); break;
+        case AstNodeType::MULT:     result << joinBinaryOp(node->children, "*"); break;
+        case AstNodeType::DIV:      result << joinBinaryOp(node->children, "/"); break;
+        case AstNodeType::LESS:     result << joinBinaryOp(node->children, "<"); break;
+        case AstNodeType::GREATER:  result << joinBinaryOp(node->children, ">"); break;
+        case AstNodeType::LE:       result << joinBinaryOp(node->children, "<="); break;
+        case AstNodeType::GE:       result << joinBinaryOp(node->children, ">="); break;
+        case AstNodeType::EQ:       result << joinBinaryOp(node->children, "=="); break;
+        case AstNodeType::DIF:      result << joinBinaryOp(node->children, "!="); break;
+        case AstNodeType::AND:      result << joinBinaryOp(node->children, "&"); break;
+        case AstNodeType::OR:       result << joinBinaryOp(node->children, "|"); break;
 
         case AstNodeType::NOT:
             result << "~" << decompileAstNode(node->children[0]);
@@ -211,4 +176,19 @@ string decompileAstNode(AstNode* node) {
     }
 
     return result.str();
+}
+
+string joinChildren(const vector<AstNode*>& children, const string& separator) {
+    stringstream ss;
+
+    for (size_t i = 0; i < children.size(); ++i) {
+        ss << decompileAstNode(children[i]);
+        if (i < children.size() - 1) ss << separator;
+    }
+
+    return ss.str();
+}
+
+string joinBinaryOp(const vector<AstNode*>& children, const string& op) {
+    return "(" + decompileAstNode(children[0]) + " " + op + " " + decompileAstNode(children[1]) + ")";
 }
