@@ -19,7 +19,8 @@ string joinBinaryOp(const vector<AstNode*>& children, const string& op);
 const char* astNodeTypeLabel[] = {
     "DECL_LIST", "VAR_DECL", "ARRAY_DECL", "ARRAY_INIT", "FUNC_DECL", "PARAM_LIST",
     "VAR_DEF", "SYMBOL", "BYTE", "INT", "REAL",
-    "CMD_LIST","ASSIGN", "ARRAY_ELEM", "IF", "IF_ELSE", "WHILE_DO", "DO_WHILE", "READ", "PRINT", "RETURN",
+    "CMD_BLOCK", "CMD_LIST","ASSIGN", "ASSIGN_ARRAY_ELEM",
+    "ARRAY_ELEM", "IF", "IF_ELSE", "WHILE_DO", "DO_WHILE", "READ", "PRINT", "RETURN",
     "ADD", "SUB", "MULT", "DIV", "LESS", "GREATER", "AND", "OR", "LE", "GE", "EQ", "DIF", "NOT",
     "FUNC_CALL", "ARG_LIST"
 };
@@ -98,16 +99,22 @@ string decompileAstNode(AstNode* node) {
             result << "real";
             break;
 
+        case AstNodeType::CMD_BLOCK:
+            result << "{\n" << decompileAstNode(node->children[0]) << "}";
+            break;
+
         case AstNodeType::CMD_LIST:
-            result << "{\n";
             for (AstNode* child : node->children) {
                 result << decompileAstNode(child) << "\n";
             }
-            result << "}";
             break;
 
         case AstNodeType::ASSIGN:
             result << node->symbol->text << " = " << decompileAstNode(node->children[0]) << ";";
+            break;
+
+        case AstNodeType::ASSIGN_ARRAY_ELEM:
+            result << decompileAstNode(node->children[0]) << " = " << decompileAstNode(node->children[1]) << ";";
             break;
 
         case AstNodeType::ARRAY_ELEM:
@@ -120,16 +127,15 @@ string decompileAstNode(AstNode* node) {
 
         case AstNodeType::IF_ELSE:
             result << "if (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]) <<
-                      " else " << decompileAstNode(node->children[2]);
+                    " else " << decompileAstNode(node->children[2]);
             break;
 
         case AstNodeType::WHILE_DO:
-            result << "while (" << decompileAstNode(node->children[0]) << ") do\n" << decompileAstNode(node->children[1]);
+            result << "while " << decompileAstNode(node->children[0]) << " do\n" << decompileAstNode(node->children[1]);
             break;
 
         case AstNodeType::DO_WHILE:
-            result << "do " << decompileAstNode(node->children[0]) << " while (" << decompileAstNode(node->children[1]) <<
-                      ");";
+            result << "do " << decompileAstNode(node->children[0]) << " while " << decompileAstNode(node->children[1]) << ";";
             break;
 
         case AstNodeType::READ:
@@ -137,12 +143,7 @@ string decompileAstNode(AstNode* node) {
             break;
 
         case AstNodeType::PRINT:
-            result << "print";
-            for (size_t i = 0; i < node->children.size(); ++i) {
-                result << decompileAstNode(node->children[i]);
-                if (i < node->children.size() - 1) result << " ";
-            }
-            result << ";";
+            result << "print " << joinChildren(node->children, " ") << ";";
             break;
 
         case AstNodeType::RETURN:

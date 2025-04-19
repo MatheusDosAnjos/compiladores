@@ -109,7 +109,7 @@ param_list: var_def                                 { $$ = createAstNodeList($1)
     | var_def ',' param_list                        { $$ = insertAstNodeItem($1, $3); }
     ;
 
-cmd_block: '{' cmd_item '}'                         { $$ = $2; }
+cmd_block: '{' cmd_item '}'                         { $$ = createAstNode(AstNodeType::CMD_BLOCK, {$2}); }
     ;
 
 cmd_item: cmd_list                                  { $$ = createAstNode(AstNodeType::CMD_LIST, *$1); }
@@ -132,7 +132,7 @@ cmd: assign_cmd
     ;
 
 assign_cmd: TK_IDENTIFIER '=' expr ';'              { $$ = createAstNode(AstNodeType::ASSIGN, {$3}, $1); }
-    | array_elem '=' expr ';'
+    | array_elem '=' expr ';'                       { $$ = createAstNode(AstNodeType::ASSIGN_ARRAY_ELEM, {$1, $3}); }
     ;
 
 array_elem: TK_IDENTIFIER '[' expr ']'              { $$ = createAstNode(AstNodeType::ARRAY_ELEM, {$3}, $1); }
