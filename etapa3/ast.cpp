@@ -122,11 +122,11 @@ string decompileAstNode(AstNode* node) {
             break;
 
         case AstNodeType::IF:
-            result << "if (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]);
+            result << "if(" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]);
             break;
 
         case AstNodeType::IF_ELSE:
-            result << "if (" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]) <<
+            result << "if(" << decompileAstNode(node->children[0]) << ") " << decompileAstNode(node->children[1]) <<
                     " else " << decompileAstNode(node->children[2]);
             break;
 
