@@ -32,7 +32,7 @@ test:
 	@echo "Running tests with $(TARGET)..."
 	@for file in tests/*; do \
 		printf "==> $$file ... "; \
-		./$(TARGET) $$file; \
+		./$(TARGET) $$file "$$file.out"; \
 		RC=$$?; \
 		if [ $$RC -eq 0 ]; then printf "$(GREEN)[OK]$(NC)\n"; \
 		elif [ $$RC -eq 3 ]; then printf "$(RED)[ERROR]$(NC)\n"; \
