@@ -1,0 +1,12 @@
+{
+  "files.exclude": {
+    "**/etapa1": true,
+    "**/etapa2": true,
+    "**/etapa3": true
+  },
+  "search.exclude": {
+    "**/etapa1": true,
+    "**/etapa2": true,
+    "**/etapa3": true
+  }
+}

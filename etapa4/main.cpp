@@ -8,6 +8,7 @@ Matheus Adam dos Anjos
 
 #include "ast.hpp"
 #include "lex.yy.h"
+#include "semantic.hpp"
 #include "symbols.hpp"
 
 extern int yyparse(void);
@@ -17,8 +18,8 @@ extern int getLineNumber(void);
 extern AstNode* astRoot;
 
 int main(int argc, char** argv) {
-    if (argc < 3) {
-        printf("Error: input/output file missing. Run '%s <input_file> <output_file>'\n", argv[0]);
+    if (argc < 2) {
+        printf("Error: input/output file missing. Run '%s <input_file>'\n", argv[0]);
         exit(1);
     }
 
@@ -28,21 +29,11 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    FILE* output = fopen(argv[2], "w");
-    if (output == NULL) {
-        printf("Error: could not open output file '%s'\n", argv[2]);
-        fclose(yyin);
-        exit(1);
-    }
-
     yyparse();
 
-    // printAst(astRoot);
-    std::string ast = decompileAstNode(astRoot);
-    fprintf(output, "%s", ast.c_str());
+    runSemanticAnalysis(astRoot);
 
     fclose(yyin);
-    fclose(output);
 
     exit(0);
 }

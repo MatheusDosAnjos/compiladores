@@ -56,6 +56,15 @@ void printSymbolTable() {
             case SymbolType::IDENTIFIER:
                 fprintf(stderr, "Symbol[IDENTIFIER, ");
                 break;
+            case SymbolType::VARIABLE:
+                fprintf(stderr, "Symbol[VARIABLE, ");
+                break;
+            case SymbolType::ARRAY:
+                fprintf(stderr, "Symbol[ARRAY, ");
+                break;
+            case SymbolType::FUNCTION:
+                fprintf(stderr, "Symbol[FUNCTION, ");
+                break;
             case SymbolType::INT:
                 fprintf(stderr, "Symbol[INT, ");
                 break;

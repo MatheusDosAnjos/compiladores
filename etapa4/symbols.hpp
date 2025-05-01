@@ -10,16 +10,16 @@ Matheus Adam dos Anjos
 #include <string>
 
 enum class SymbolType {
-    IDENTIFIER, INT, CHAR, REAL, STRING
+    IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
 };
 
 enum class SymbolDataType {
-    INT, CHAR, REAL, STRING
+    NONE, INT, CHAR, REAL, STRING
 };
 
 struct Symbol {
     SymbolType type;
-    SymbolDataType dataType;
+    SymbolDataType dataType = SymbolDataType::NONE;
     std::string text;
     public: Symbol(SymbolType t, std::string s): type(t), text(s) {}
 };

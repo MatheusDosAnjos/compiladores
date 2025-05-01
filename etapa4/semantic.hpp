@@ -7,4 +7,10 @@ Matheus Adam dos Anjos
 #ifndef SEMANTIC_HPP
 #define SEMANTIC_HPP
 
+#include "ast.hpp"
+
+void runSemanticAnalysis(AstNode* node);
+void checkDeclarations(AstNode* node);
+void checkUndeclared(AstNode* node);
+
 #endif
