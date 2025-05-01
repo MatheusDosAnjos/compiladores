@@ -8,7 +8,7 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
 TARGET = etapa3
-OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o
+OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o semantic.o
 
 GREEN  = \033[0;32m
 RED    = \033[0;31m
