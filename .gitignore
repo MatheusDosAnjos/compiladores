@@ -1,5 +1,11 @@
-etapa1/lex.yy.cpp
 *.o
-etapa1/etapa1
 *.tgz
 *.sh
+
+*/lex.yy.cpp
+*/parser.tab.cpp
+*/parser.tab.hpp
+
+etapa1/etapa1
+etapa2/etapa2
+etapa3/etapa3
