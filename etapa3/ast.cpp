@@ -105,6 +105,7 @@ string decompileAstNode(AstNode* node) {
 
         case AstNodeType::CMD_LIST:
             for (AstNode* child : node->children) {
+                if (!child) continue;
                 result << decompileAstNode(child) << "\n";
             }
             break;

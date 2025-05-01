@@ -19,9 +19,9 @@ map <string, Symbol*> symbolTable;
 Symbol* addSymbol(SymbolType type, char* text) {
     string txtString = string(text);
 
-    if (type == SymbolType::INT || type == SymbolType::REAL) {
-        txtString = _reverseNumericString(txtString);
-    }
+    // if (type == SymbolType::INT || type == SymbolType::REAL) {
+    //     txtString = _reverseNumericString(txtString);
+    // }
     
     if (symbolTable.find(txtString) != symbolTable.end()) {
         return symbolTable[txtString];
