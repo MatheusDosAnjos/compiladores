@@ -11,6 +11,7 @@ Matheus Adam dos Anjos
 
 void runSemanticAnalysis(AstNode* node);
 void checkDeclarations(AstNode* node);
-void checkUndeclared(AstNode* node);
+void checkIdentifierUsage(AstNode* node);
+void checkUndeclared();
 
 #endif

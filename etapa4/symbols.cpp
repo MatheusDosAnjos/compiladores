@@ -14,6 +14,14 @@ using namespace std;
 
 string _reverseNumericString(string text);
 
+static const map<SymbolType, SymbolDataType> typeMap = {
+    {SymbolType::IDENTIFIER, SymbolDataType::NONE},
+    {SymbolType::INT, SymbolDataType::INT},
+    {SymbolType::CHAR, SymbolDataType::CHAR},
+    {SymbolType::REAL, SymbolDataType::REAL},
+    {SymbolType::STRING, SymbolDataType::STRING},
+};
+
 map <string, Symbol*> symbolTable;
 
 Symbol* addSymbol(SymbolType type, char* text) {
@@ -27,7 +35,7 @@ Symbol* addSymbol(SymbolType type, char* text) {
         return symbolTable[txtString];
     }
 
-    Symbol* symbol = new Symbol(type, txtString);
+    Symbol* symbol = new Symbol(type, typeMap.at(type), txtString);
     symbolTable[txtString] = symbol;
 
     return symbol;
@@ -78,6 +86,27 @@ void printSymbolTable() {
                 fprintf(stderr, "Symbol[STRING, ");
         }
 
-        fprintf(stderr, "%s]\n", x.first.c_str());
+        fprintf(stderr, "%s]", x.first.c_str());
+
+        switch (x.second->dataType) {
+            case SymbolDataType::NONE:
+                fprintf(stderr, " = NONE\n");
+                break;
+            case SymbolDataType::INT:
+                fprintf(stderr, " = INT\n");
+                break;
+            case SymbolDataType::BYTE:
+                fprintf(stderr, " = BYTE\n");
+                break;
+            case SymbolDataType::CHAR:
+                fprintf(stderr, " = CHAR\n");
+                break;
+            case SymbolDataType::REAL:
+                fprintf(stderr, " = REAL\n");
+                break;
+            case SymbolDataType::STRING:
+                fprintf(stderr, " = STRING\n");
+                break;
+        }
     }
 }

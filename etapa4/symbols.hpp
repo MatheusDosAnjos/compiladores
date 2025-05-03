@@ -14,14 +14,14 @@ enum class SymbolType {
 };
 
 enum class SymbolDataType {
-    NONE, INT, CHAR, REAL, STRING
+    NONE, INT, BYTE, CHAR, REAL, STRING
 };
 
 struct Symbol {
     SymbolType type;
-    SymbolDataType dataType = SymbolDataType::NONE;
+    SymbolDataType dataType;
     std::string text;
-    public: Symbol(SymbolType t, std::string s): type(t), text(s) {}
+    public: Symbol(SymbolType t, SymbolDataType dt, std::string s): type(t), dataType(dt), text(s) {}
 };
 
 Symbol* addSymbol(SymbolType type, char* text);

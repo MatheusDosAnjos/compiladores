@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     yyin = fopen(argv[1], "r");
     if (yyin == NULL) {
         printf("Error: could not open input file '%s'\n", argv[1]);
-        exit(1);
+        exit(2);
     }
 
     yyparse();

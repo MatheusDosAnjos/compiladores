@@ -32,10 +32,11 @@ test:
 	@echo "Running tests with $(TARGET)..."
 	@for file in tests/*; do \
 		printf "==> $$file ... "; \
-		./$(TARGET) $$file "$$file.out"; \
+		./$(TARGET) $$file; \
 		RC=$$?; \
 		if [ $$RC -eq 0 ]; then printf "$(GREEN)[OK]$(NC)\n"; \
-		elif [ $$RC -eq 3 ]; then printf "$(RED)[ERROR]$(NC)\n"; \
+		elif [ $$RC -eq 3 ]; then printf "$(RED)[SYNTAX ERROR]$(NC)\n"; \
+		elif [ $$RC -eq 4 ]; then printf "$(RED)[SEMANTIC ERROR]$(NC)\n"; \
 		else printf "[RC=$$RC]\n"; \
 		fi; \
 	done
