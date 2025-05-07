@@ -7,24 +7,29 @@ Matheus Adam dos Anjos
 #ifndef SYMBOLS_HPP
 #define SYMBOLS_HPP
 
+#include <map>
+#include <set>
 #include <string>
+
+#include "semantic/datatype.hpp"
 
 enum class SymbolType {
     IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
 };
 
-enum class SymbolDataType {
-    NONE, INT, BYTE, CHAR, REAL, STRING
-};
-
 struct Symbol {
     SymbolType type;
-    SymbolDataType dataType;
+    DataType dataType;
     std::string text;
-    public: Symbol(SymbolType t, SymbolDataType dt, std::string s): type(t), dataType(dt), text(s) {}
+    public: Symbol(SymbolType t, DataType dt, std::string s): type(t), dataType(dt), text(s) {}
 };
+
+extern std::map<std::string, Symbol*> symbolTable;
+extern const std::set<std::pair<DataType, DataType>> compatibleDataTypes;
 
 Symbol* addSymbol(SymbolType type, char* text);
 void printSymbolTable(void);
+
+bool isLiteral(SymbolType type) noexcept;
 
 #endif

@@ -8,21 +8,22 @@ Matheus Adam dos Anjos
 #include <string>
 #include <map>
 
+#include "semantic/datatype.hpp"
 #include "symbols.hpp"
 
 using namespace std;
 
 string _reverseNumericString(string text);
 
-static const map<SymbolType, SymbolDataType> typeMap = {
-    {SymbolType::IDENTIFIER, SymbolDataType::NONE},
-    {SymbolType::INT, SymbolDataType::INT},
-    {SymbolType::CHAR, SymbolDataType::CHAR},
-    {SymbolType::REAL, SymbolDataType::REAL},
-    {SymbolType::STRING, SymbolDataType::STRING},
+static const map<SymbolType, DataType> typeMap = {
+    {SymbolType::IDENTIFIER, DataType::NONE},
+    {SymbolType::INT, DataType::INT},
+    {SymbolType::CHAR, DataType::CHAR},
+    {SymbolType::REAL, DataType::REAL},
+    {SymbolType::STRING, DataType::STRING},
 };
 
-map <string, Symbol*> symbolTable;
+map<string, Symbol*> symbolTable;
 
 Symbol* addSymbol(SymbolType type, char* text) {
     string txtString = string(text);
@@ -89,24 +90,31 @@ void printSymbolTable() {
         fprintf(stderr, "%s]", x.first.c_str());
 
         switch (x.second->dataType) {
-            case SymbolDataType::NONE:
+            case DataType::NONE:
                 fprintf(stderr, " = NONE\n");
                 break;
-            case SymbolDataType::INT:
+            case DataType::INT:
                 fprintf(stderr, " = INT\n");
                 break;
-            case SymbolDataType::BYTE:
+            case DataType::BYTE:
                 fprintf(stderr, " = BYTE\n");
                 break;
-            case SymbolDataType::CHAR:
+            case DataType::CHAR:
                 fprintf(stderr, " = CHAR\n");
                 break;
-            case SymbolDataType::REAL:
+            case DataType::REAL:
                 fprintf(stderr, " = REAL\n");
                 break;
-            case SymbolDataType::STRING:
+            case DataType::STRING:
                 fprintf(stderr, " = STRING\n");
                 break;
         }
     }
+}
+
+bool isLiteral(SymbolType type) noexcept {
+    return type == SymbolType::INT || 
+           type == SymbolType::CHAR || 
+           type == SymbolType::REAL || 
+           type == SymbolType::STRING;
 }

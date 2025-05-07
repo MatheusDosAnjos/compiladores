@@ -8,7 +8,7 @@ Matheus Adam dos Anjos
 
 #include "ast.hpp"
 #include "lex.yy.h"
-#include "semantic.hpp"
+#include "semantic/semantic.hpp"
 #include "symbols.hpp"
 
 extern int yyparse(void);
@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
 
     yyparse();
 
+    printAst(astRoot, 0);
     runSemanticAnalysis(astRoot);
 
     fclose(yyin);

@@ -10,6 +10,7 @@ Matheus Adam dos Anjos
 #include <string>
 #include <vector>
 
+#include "semantic/datatype.hpp"
 #include "symbols.hpp"
 
 enum class AstNodeType {
@@ -23,6 +24,7 @@ enum class AstNodeType {
 
 struct AstNode {
     AstNodeType type;
+    DataType dataType = DataType::NONE;
     std::vector<AstNode*> children;
     Symbol* symbol;
     public: AstNode(AstNodeType t, std::vector<AstNode*> c, Symbol* s): type(t), children(c), symbol(s) {}

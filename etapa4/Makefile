@@ -8,19 +8,27 @@ CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
 TARGET = etapa4
-OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o semantic.o
 
-GREEN  = \033[0;32m
-RED    = \033[0;31m
-NC     = \033[0m
+SEMANTIC_SRC := $(wildcard semantic/*.cpp)
+SEMANTIC_OBJ := $(SEMANTIC_SRC:.cpp=.o)
 
+OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o $(SEMANTIC_OBJ)
+
+GREEN = \033[0;32m
+RED = \033[0;31m
+NC = \033[0m
+
+.PHONY: target test clean
 target: $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CXX) $(OBJ) -o $(TARGET)
 
-%.o: %.cpp 
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) $< -c
+
+semantic/%.o: semantic/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 lex.yy.cpp: scanner.l parser.tab.hpp
 	flex -o lex.yy.cpp scanner.l 
@@ -42,4 +50,4 @@ test:
 	done
 
 clean:
-	rm $(TARGET) lex.yy.cpp parser.tab.cpp parser.tab.hpp *.o
+	rm $(TARGET) lex.yy.cpp parser.tab.cpp parser.tab.hpp *.o semantic/*.o
