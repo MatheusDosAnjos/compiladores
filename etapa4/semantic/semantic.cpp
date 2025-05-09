@@ -35,6 +35,7 @@ void runSemanticAnalysis(AstNode* root) {
 
     checkUndeclared();
     checkIdentifierUsage(root);
+    inferType(root);
 }
 
 void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
@@ -176,4 +177,79 @@ void checkIdentifierUsage(AstNode* node) {
 
     for (auto c : node->children)
         checkIdentifierUsage(c);
+}
+
+DataType inferType(AstNode* node) {
+    if (!node) return DataType::NONE;
+
+   	for (auto child : node->children)
+        inferType(child);
+
+    switch (node->type) {
+        case AstNodeType::SYMBOL:
+        case AstNodeType::ARRAY_ELEM:
+        case AstNodeType::FUNC_CALL:
+            fprintf(stderr, "Returning datatype for: %s\n", node->symbol->text.c_str());
+            return node->symbol->dataType;
+            break;
+
+        case AstNodeType::ADD:
+        case AstNodeType::SUB:
+        case AstNodeType::MULT:
+        case AstNodeType::DIV: {
+            DataType left = inferType(node->children[0]);
+            DataType right = inferType(node->children[1]);
+
+            if (isValidArithmeticOperation(left, right)) {
+                node->dataType = left;
+            } else {
+                errorReporter.report("Expressão aritmética inválida.");
+            }
+            break;
+        }
+
+        case AstNodeType::LESS:
+        case AstNodeType::GREATER:
+        case AstNodeType::LE:
+        case AstNodeType::GE:
+        case AstNodeType::EQ:
+        case AstNodeType::DIF: {
+            DataType left = inferType(node->children[0]);
+            DataType right = inferType(node->children[1]);
+
+            if (isValidArithmeticOperation(left, right)) {
+                node->dataType = DataType::BOOL;
+            } else {
+                errorReporter.report("Expressão relacional inválida.");
+            }
+            break;
+        }
+
+        case AstNodeType::AND:
+        case AstNodeType::OR: {
+            DataType left = inferType(node->children[0]);
+            DataType right = inferType(node->children[1]);
+            if (left == DataType::BOOL && right == DataType::BOOL) {
+                node->dataType = DataType::BOOL;
+            } else {
+                errorReporter.report("Expressão booleana inválida.");
+            }
+            break;
+        }
+
+        case AstNodeType::NOT: {
+            DataType child = inferType(node->children[0]);
+            if (child == DataType::BOOL) {
+                node->dataType = DataType::BOOL;
+            } else {
+                errorReporter.report("Expressão booleana inválida.");
+            }
+            break;
+        }
+
+        default:
+            return DataType::NONE;
+    }
+
+    return node->dataType;
 }

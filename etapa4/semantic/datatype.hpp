@@ -7,14 +7,11 @@ Matheus Adam dos Anjos
 #ifndef DATATYPE_HPP
 #define DATATYPE_HPP
 
-#include <map>
-#include <set>
-#include <string>
-
 enum class DataType {
     NONE, INT, BYTE, CHAR, REAL, STRING, BOOL
 };
 
 bool isCompatible(DataType from, DataType to);
+bool isValidArithmeticOperation(DataType left, DataType right);
 
 #endif
