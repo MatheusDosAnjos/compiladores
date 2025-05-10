@@ -1,5 +1,0 @@
-int x = 10;
-
-byte operation() {
-    x = x + 1/5;
-}

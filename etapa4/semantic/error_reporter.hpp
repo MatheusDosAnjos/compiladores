@@ -9,10 +9,25 @@ Matheus Adam dos Anjos
 
 #include <string>
 
+enum class ErrorType {
+    REDECLARED_VARIABLE,
+    INCOMPATIBLE_INIT,
+    UNDECLARED_VARIABLE,
+    INVALID_ARRAY_SIZE,
+    INVALID_SCALAR_USAGE,
+    INVALID_ARRAY_USAGE,
+    INVALID_FUNCTION_USAGE,
+    INVALID_FUNCTION_CALL,
+    INVALID_ARITHMETIC_EXPR,
+    INVALID_RELATIONAL_EXPR,
+    INVALID_LOGICAL_EXPR,
+    INCOMPATIBLE_ASSIGN,
+};
+
 struct ErrorReporter {
     int count = 0;
 
-    void report(const std::string& msg);
+    void report(ErrorType type, const std::vector<std::string>& args);
     int getCount() const;
     bool hasErrors() const;
 };

@@ -25,7 +25,6 @@ struct Symbol {
 };
 
 extern std::map<std::string, Symbol*> symbolTable;
-extern const std::set<std::pair<DataType, DataType>> compatibleDataTypes;
 
 Symbol* addSymbol(SymbolType type, char* text);
 void printSymbolTable(void);

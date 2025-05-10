@@ -87,28 +87,7 @@ void printSymbolTable() {
                 fprintf(stderr, "Symbol[STRING, ");
         }
 
-        fprintf(stderr, "%s]", x.first.c_str());
-
-        switch (x.second->dataType) {
-            case DataType::NONE:
-                fprintf(stderr, " = NONE\n");
-                break;
-            case DataType::INT:
-                fprintf(stderr, " = INT\n");
-                break;
-            case DataType::BYTE:
-                fprintf(stderr, " = BYTE\n");
-                break;
-            case DataType::CHAR:
-                fprintf(stderr, " = CHAR\n");
-                break;
-            case DataType::REAL:
-                fprintf(stderr, " = REAL\n");
-                break;
-            case DataType::STRING:
-                fprintf(stderr, " = STRING\n");
-                break;
-        }
+        fprintf(stderr, "%s] = %s", x.first.c_str(), getDataTypeLabel(x.second->dataType).c_str());
     }
 }
 

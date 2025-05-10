@@ -1,0 +1,8 @@
+int x = 5;
+real y[2] = 1/2;
+int w[2] = 1;
+
+byte operation() {
+    y[2] = w[2];
+   // x = x + (2 > 4) & 5;
+}

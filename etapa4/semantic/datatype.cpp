@@ -14,13 +14,13 @@ Matheus Adam dos Anjos
 using namespace std;
 
 static const unordered_map<DataType, const char*> dataTypeLabel = {
-    {DataType::NONE, "NONE"},
-    {DataType::INT, "INT"},
-    {DataType::BYTE, "BYTE"},
-    {DataType::CHAR, "CHAR"},
-    {DataType::REAL, "REAL"},
-    {DataType::STRING, "STRING"},
-    {DataType::BOOL, "BOOL"}
+    {DataType::NONE, "none"},
+    {DataType::INT, "int"},
+    {DataType::BYTE, "byte"},
+    {DataType::CHAR, "char"},
+    {DataType::REAL, "real"},
+    {DataType::STRING, "string"},
+    {DataType::BOOL, "bool"}
 };
 
 const set<pair<DataType, DataType>> compatibleDataTypes = {
@@ -38,11 +38,15 @@ const vector<DataType> arithmeticDatatypes = {
     DataType::REAL
 };
 
+string getDataTypeLabel(DataType type) {
+    return dataTypeLabel.at(type);
+}
+
 bool isCompatible(DataType from, DataType to) {
     return compatibleDataTypes.count({from, to}) > 0;
 }
 
-bool isValidArithmeticOperation(DataType left, DataType right) {
+bool isArithmeticOperation(DataType left, DataType right) {
     bool isLeftValid  = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), left)  != arithmeticDatatypes.end();
     bool isRightValid = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), right) != arithmeticDatatypes.end();
 

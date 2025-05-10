@@ -1,0 +1,29 @@
+// --- REDECLARED_VARIABLE --- 
+int a = 5;
+int a = 5;
+
+// --- INCOMPATIBLE_INIT ---
+int b = 5/2;
+byte b = 5/2;
+real c = 5;
+real d = 'd';
+
+int e[0];
+
+int func1() {
+// --- UNDECLARED_VARIABLE ---
+    e = 5;
+
+}
+
+int x = 5;
+
+int array[2] = 1, '2'; 
+
+real y[2] = 1/2;
+int w[2] = 1;
+
+byte operation() {
+  //  y[2] = w[2];
+   // x = x + (2 > 4) & 5;
+}

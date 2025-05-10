@@ -12,6 +12,8 @@ enum class DataType {
 };
 
 bool isCompatible(DataType from, DataType to);
-bool isValidArithmeticOperation(DataType left, DataType right);
+bool isArithmeticOperation(DataType left, DataType right);
+
+std::string getDataTypeLabel(DataType type);
 
 #endif
