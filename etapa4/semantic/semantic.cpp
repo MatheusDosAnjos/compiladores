@@ -14,6 +14,12 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
+void checkDeclarations(AstNode* node);
+void checkIdentifierUsage(AstNode* node);
+void checkUndeclared();
+void checkCommand(AstNode* cmd, DataType returnDataType);
+DataType inferType(AstNode* node);
+
 map<Symbol*, AstNode*> functionDeclarations;
 
 static const map<AstNodeType, SymbolType> declarationTypeMap = {
@@ -35,6 +41,13 @@ void runSemanticAnalysis(AstNode* root) {
 
     checkUndeclared();
     checkIdentifierUsage(root);
+
+    for (AstNode* decl : root->children) {
+        if (decl->type != AstNodeType::FUNC_DECL) continue;
+
+        checkCommand(decl->children[2], decl->children[0]->symbol->dataType);
+    }
+
 }
 
 void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
@@ -297,4 +310,57 @@ DataType inferType(AstNode* node) {
     }
 
     return node->dataType;
+}
+
+void checkCommand(AstNode* cmd, DataType returnDataType) {
+    if (!cmd) {
+        fprintf(stderr, "Error: cmd is null\n");
+        return;
+    }
+
+    switch (cmd->type) {
+        case AstNodeType::IF:
+        case AstNodeType::WHILE_DO:
+            // TODO: Verificar com o prof, isso aqui é necessário? Acredito que sim
+            if (inferType(cmd->children[0]) != DataType::BOOL) {
+                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+            }
+
+            checkCommand(cmd->children[1], returnDataType);
+            break;
+        case AstNodeType::IF_ELSE:
+            if (inferType(cmd->children[0]) != DataType::BOOL) {
+                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+            }
+
+            checkCommand(cmd->children[1], returnDataType);
+            checkCommand(cmd->children[2], returnDataType);
+            break;
+        case AstNodeType::DO_WHILE:
+            if (inferType(cmd->children[1]) != DataType::BOOL) {
+                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
+            }
+
+            checkCommand(cmd->children[0], returnDataType);
+            break;
+        case AstNodeType::READ:
+            // TODO: Checar o que é válido aqui para o identificador (só escalar, só vetor, os dois)?
+            break;
+        case AstNodeType::PRINT:
+            // TODO: Checar aqui o que é válido para as expressões (relacionais, lógicas, aritméticas, etc)
+            break;
+        case AstNodeType::RETURN: {
+            DataType exprDataType = inferType(cmd->children[0]);
+
+            if (!isCompatible(exprDataType, returnDataType)) {
+                errorReporter.report(
+                    ErrorType::INVALID_RETURN_TYPE,
+                    {getDataTypeLabel(exprDataType), getDataTypeLabel(returnDataType)}
+                );
+            }
+            break;
+        }
+        default:
+            break;
+    }
 }

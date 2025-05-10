@@ -10,9 +10,5 @@ Matheus Adam dos Anjos
 #include "../ast.hpp"
 
 void runSemanticAnalysis(AstNode* node);
-void checkDeclarations(AstNode* node);
-void checkIdentifierUsage(AstNode* node);
-void checkUndeclared();
-DataType inferType(AstNode* node);
 
 #endif

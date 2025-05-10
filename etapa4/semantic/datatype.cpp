@@ -27,6 +27,7 @@ const set<pair<DataType, DataType>> compatibleDataTypes = {
     {DataType::INT,  DataType::INT},
     {DataType::INT,  DataType::CHAR},
     {DataType::REAL, DataType::REAL},
+    {DataType::BYTE, DataType::BYTE},
     {DataType::BYTE, DataType::INT},
     {DataType::BYTE, DataType::CHAR},
 };

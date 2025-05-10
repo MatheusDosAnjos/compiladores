@@ -27,6 +27,8 @@ static const map<ErrorType, string> errorTemplates = {
     {ErrorType::INVALID_RELATIONAL_EXPR, "Invalid relational expression: '{0}'."},
     {ErrorType::INVALID_LOGICAL_EXPR, "Invalid logical expression: '{0}'."},
     {ErrorType::INCOMPATIBLE_ASSIGN, "Type '{1}' is not compatible with '{0}' on '{2}' assignment."},
+    {ErrorType::INVALID_CONDITIONAL_EXPR, "Invalid conditional expression: '{0}'."},
+    {ErrorType::INVALID_RETURN_TYPE, "Invalid return type: '{0}'. Expected '{1}'."},
 };
 
 inline string formatError(ErrorType type, const vector<string>& args) {
