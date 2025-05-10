@@ -1,29 +1,77 @@
 // --- REDECLARED_VARIABLE --- 
 int a = 5;
 int a = 5;
+int func1(int a) {}
 
 // --- INCOMPATIBLE_INIT ---
 int b = 5/2;
-byte b = 5/2;
-real c = 5;
-real d = 'd';
+byte bb = 5/2;
+real bbb = 5;
+real bbbb = 'b';
 
+int c[1] = 5/2;
+byte cc[1] = 5/2;
+real ccc[1] = 5;
+real cccc[1] = 'c';
+
+int d[2] = 5, 5/2;
+byte dd[2] = 5, 5/2;
+real ddd[2] = 5/2, 5;
+real dddd[2] = 5/2, 'c';
+
+// --- INVALID_ARRAY_SIZE_1 ---
 int e[0];
 
-int func1() {
-// --- UNDECLARED_VARIABLE ---
-    e = 5;
+// --- INVALID_ARRAY_SIZE_2 ---
+int f[1] = 1, 2;
+
+    int main() {
+    // --- UNDECLARED_VARIABLE ---
+    g = 5;
+
+    // --- INVALID_SCALAR_USAGE ---
+    print c;
+    print func1;
+
+    // --- INVALID_ARRAY_USAGE ---
+    print a[0];
+    print func1[0];
+
+    // --- INVALID_FUNCTION_USAGE ---
+    print a();
+    print c();
+
+    // --- INVALID_FUNCTION_CALL_1 ---
+    print func1();
+    print func1(a, b);
+
+    // --- INVALID_FUNCTION_CALL_2 ---
+    print func1(5 < 6);
+    print func2(5/2, 5/2, 19);
+
+    // --- INVALID_ARITHMETIC_EXPR ---
+    a = a + (2 < 4);
+    a = 2 - 3/5;
+    a = bbb / c[1];
+    bbb = bbb * a;
+    bbb = bbb + ((2 <= 4) & (2 >= 4));
+
+    // --- INVALID_RELATIONAL_EXPR ---
+    a = 5/4 < 3;
+    a = 5 == 3 != 6;
+    a = 5 == ~(1 == 1);
+
+    // --- INVALID_LOGICAL_EXPR ---
+    a = ~5;
+    a = a & 4;
+
+    // --- INCOMPATIBLE_ASSIGN ---
+    c[1] = ccc[1];
+    cc[1] = ccc[1];
+    ccc[1] = c[1];
+    cccc[1] = 'c';
 
 }
 
-int x = 5;
-
-int array[2] = 1, '2'; 
-
-real y[2] = 1/2;
-int w[2] = 1;
-
-byte operation() {
-  //  y[2] = w[2];
-   // x = x + (2 > 4) & 5;
-}
+byte func2(int x, byte y, real w) {}
+real func3(int xx, byte yy, real ww) {}

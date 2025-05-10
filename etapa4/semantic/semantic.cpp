@@ -35,14 +35,13 @@ void runSemanticAnalysis(AstNode* root) {
 
     checkUndeclared();
     checkIdentifierUsage(root);
-    inferType(root);
 }
 
 void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
     int arraySize = stoi(arrayDecl->symbol->text);
 
     if (arraySize == 0) {
-        errorReporter.report(ErrorType::INVALID_ARRAY_SIZE, {symbol->text});
+        errorReporter.report(ErrorType::INVALID_ARRAY_SIZE_1, {symbol->text});
         return;
     }
 
@@ -50,15 +49,20 @@ void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
 
     if (!arrayInit) return;
 
+    if (arrayInit->children.size() != static_cast<size_t>(arraySize)) {
+        errorReporter.report(ErrorType::INVALID_ARRAY_SIZE_2, {symbol->text});
+        return;
+    }
+
     for (auto* item : arrayInit->children) {
         DataType itemDataType = item->symbol->dataType;
+
         if (!isCompatible(symbol->dataType, itemDataType)) {
             errorReporter.report(
                 ErrorType::INCOMPATIBLE_INIT,
                 {getDataTypeLabel(symbol->dataType), getDataTypeLabel(itemDataType), symbol->text}
             );        
         }
-        continue;
     }
 }
 
@@ -135,7 +139,7 @@ void checkIdentifierUsage(AstNode* node) {
             if (!isCompatible(sym->dataType, exprDataType)) {
                 errorReporter.report(
                     ErrorType::INCOMPATIBLE_ASSIGN,
-                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), sym->text}
+                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
                 );
             }
 
@@ -150,7 +154,7 @@ void checkIdentifierUsage(AstNode* node) {
             if (!isCompatible(sym->dataType, exprDataType)) {
                 errorReporter.report(
                     ErrorType::INCOMPATIBLE_ASSIGN,
-                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), sym->text}
+                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
                 );
             }
 
@@ -188,21 +192,26 @@ void checkIdentifierUsage(AstNode* node) {
             AstNode* paramList = funcDecl->children[1];
             AstNode* argList = node->children[0];
 
+            if (!paramList) break;
+
+            if (!argList) {
+                errorReporter.report(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
+                break;
+            }
+
             if (paramList->children.size() != argList->children.size()) {
-                errorReporter.report(ErrorType::INVALID_FUNCTION_CALL, {sym->text});
+                errorReporter.report(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
             } else {
                 for (size_t i = 0; i < paramList->children.size(); ++i) {
-                    Symbol* paramSym = paramList->children[i]->symbol;
-                    fprintf(stderr, "paramSym: %s\n", paramSym->text.c_str());
+                    DataType paramDataType = paramList->children[i]->symbol->dataType;
+                    DataType argDataType = inferType(argList->children[i]);
 
-                    // AstNode* identifierNode = decl->children[0];
-                    // Symbol* symbol = identifierNode->symbol;
-
-                    // Symbol* argSym = argList->children[i]->symbol;
-
-                    // if (!isCompatible(paramSym->dataType, argSym->dataType)) {
-                    //     errorReporter.report("Incompatible types for function " + sym->text);
-                    // }
+                    if (!isCompatible(paramDataType, argDataType)) {
+                        errorReporter.report(
+                            ErrorType::INVALID_FUNCTION_CALL_2,
+                            {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), sym->text}
+                        );
+                    }
                 }
             }
         }
@@ -218,13 +227,11 @@ void checkIdentifierUsage(AstNode* node) {
 
 DataType inferType(AstNode* node) {
     if (!node) return DataType::NONE;
-    // fprintf(stderr, "Checking node: %s\n", decompileAstNode(node).c_str());
 
     switch (node->type) {
         case AstNodeType::SYMBOL:
         case AstNodeType::ARRAY_ELEM:
         case AstNodeType::FUNC_CALL:
-            // fprintf(stderr, "Returning datatype for: %s\n", node->symbol->text.c_str());
             return node->symbol->dataType;
             break;
 
