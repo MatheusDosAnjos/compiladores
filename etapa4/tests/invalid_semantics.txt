@@ -25,7 +25,7 @@ int e[0];
 // --- INVALID_ARRAY_SIZE_2 ---
 int f[1] = 1, 2;
 
-    int main() {
+int main() {
     // --- UNDECLARED_VARIABLE ---
     g = 5;
 

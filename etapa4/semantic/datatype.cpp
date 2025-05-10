@@ -46,7 +46,7 @@ bool isCompatible(DataType from, DataType to) {
     return compatibleDataTypes.count({from, to}) > 0;
 }
 
-bool isArithmeticOperation(DataType left, DataType right) {
+bool isArithmeticOp(DataType left, DataType right) {
     bool isLeftValid  = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), left)  != arithmeticDatatypes.end();
     bool isRightValid = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), right) != arithmeticDatatypes.end();
 

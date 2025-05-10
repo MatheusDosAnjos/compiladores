@@ -242,7 +242,7 @@ DataType inferType(AstNode* node) {
             DataType left = inferType(node->children[0]);
             DataType right = inferType(node->children[1]);
 
-            if (isArithmeticOperation(left, right)) {
+            if (isArithmeticOp(left, right)) {
                 node->dataType = left;
             } else {
                 errorReporter.report(ErrorType::INVALID_ARITHMETIC_EXPR, {decompileAstNode(node)});
@@ -259,7 +259,7 @@ DataType inferType(AstNode* node) {
             DataType left = inferType(node->children[0]);
             DataType right = inferType(node->children[1]);
 
-            if (isArithmeticOperation(left, right)) {
+            if (isArithmeticOp(left, right)) {
                 node->dataType = DataType::BOOL;
             } else {
                 errorReporter.report(ErrorType::INVALID_RELATIONAL_EXPR, {decompileAstNode(node)});

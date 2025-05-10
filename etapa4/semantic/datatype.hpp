@@ -12,7 +12,7 @@ enum class DataType {
 };
 
 bool isCompatible(DataType from, DataType to);
-bool isArithmeticOperation(DataType left, DataType right);
+bool isArithmeticOp(DataType left, DataType right);
 
 std::string getDataTypeLabel(DataType type);
 
