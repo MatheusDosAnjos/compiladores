@@ -34,7 +34,7 @@ static const map<AstNodeType, DataType> dataTypeMap = {
     {AstNodeType::REAL, DataType::REAL},
 };
 
-void runSemanticAnalysis(AstNode* root) {
+bool runSemanticAnalysis(AstNode* root) {
     for (AstNode* decl : root->children) {
         checkDeclarations(decl);
     }
@@ -48,13 +48,15 @@ void runSemanticAnalysis(AstNode* root) {
         checkCommand(decl->children[2], decl->children[0]->symbol->dataType);
     }
 
+    return hasErrors();
+
 }
 
 void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
     int arraySize = stoi(arrayDecl->symbol->text);
 
     if (arraySize == 0) {
-        errorReporter.report(ErrorType::INVALID_ARRAY_SIZE_1, {symbol->text});
+        reportError(ErrorType::INVALID_ARRAY_SIZE_1, {symbol->text});
         return;
     }
 
@@ -63,7 +65,7 @@ void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
     if (!arrayInit) return;
 
     if (arrayInit->children.size() != static_cast<size_t>(arraySize)) {
-        errorReporter.report(ErrorType::INVALID_ARRAY_SIZE_2, {symbol->text});
+        reportError(ErrorType::INVALID_ARRAY_SIZE_2, {symbol->text});
         return;
     }
 
@@ -71,7 +73,7 @@ void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
         DataType itemDataType = item->symbol->dataType;
 
         if (!isCompatible(symbol->dataType, itemDataType)) {
-            errorReporter.report(
+            reportError(
                 ErrorType::INCOMPATIBLE_INIT,
                 {getDataTypeLabel(symbol->dataType), getDataTypeLabel(itemDataType), symbol->text}
             );        
@@ -84,7 +86,7 @@ void checkDeclarations(AstNode* decl) {
     Symbol* symbol = identifierNode->symbol;
 
     if (symbol->type != SymbolType::IDENTIFIER) {
-        errorReporter.report(ErrorType::REDECLARED_VARIABLE, {symbol->text});
+        reportError(ErrorType::REDECLARED_VARIABLE, {symbol->text});
         return;
     }
 
@@ -96,7 +98,7 @@ void checkDeclarations(AstNode* decl) {
             DataType initDataType = decl->children[1]->symbol->dataType;
 
             if (!isCompatible(symbol->dataType, initDataType)) {
-                errorReporter.report(
+                reportError(
                     ErrorType::INCOMPATIBLE_INIT,
                     {getDataTypeLabel(symbol->dataType), getDataTypeLabel(initDataType), symbol->text}
                 );
@@ -114,7 +116,7 @@ void checkDeclarations(AstNode* decl) {
             if (paramList) {
                 for (auto* param : paramList->children) {
                     if (param->symbol->type != SymbolType::IDENTIFIER) {
-                        errorReporter.report(ErrorType::REDECLARED_VARIABLE, {param->symbol->text});
+                        reportError(ErrorType::REDECLARED_VARIABLE, {param->symbol->text});
                         continue;
                     }
 
@@ -131,7 +133,7 @@ void checkDeclarations(AstNode* decl) {
 void checkUndeclared() {
     for (const auto& entry : symbolTable) {
         if (entry.second->type == SymbolType::IDENTIFIER) {
-            errorReporter.report(ErrorType::UNDECLARED_VARIABLE, {entry.first});
+            reportError(ErrorType::UNDECLARED_VARIABLE, {entry.first});
         }
     }
 }
@@ -144,13 +146,13 @@ void checkIdentifierUsage(AstNode* node) {
             Symbol* sym = node->symbol;
 
             if (sym->type != SymbolType::VARIABLE){
-                errorReporter.report(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
+                reportError(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
             }
 
             DataType exprDataType = inferType(node->children[0]);
 
             if (!isCompatible(sym->dataType, exprDataType)) {
-                errorReporter.report(
+                reportError(
                     ErrorType::INCOMPATIBLE_ASSIGN,
                     {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
                 );
@@ -165,7 +167,7 @@ void checkIdentifierUsage(AstNode* node) {
             DataType exprDataType = inferType(node->children[1]);
 
             if (!isCompatible(sym->dataType, exprDataType)) {
-                errorReporter.report(
+                reportError(
                     ErrorType::INCOMPATIBLE_ASSIGN,
                     {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
                 );
@@ -178,7 +180,7 @@ void checkIdentifierUsage(AstNode* node) {
             Symbol* sym = node->symbol;
 
             if (!isLiteral(sym->type) && sym->type != SymbolType::VARIABLE)
-                errorReporter.report(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
+                reportError(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
 
             break;
         }
@@ -187,7 +189,7 @@ void checkIdentifierUsage(AstNode* node) {
             Symbol* sym = node->symbol;
 
             if (sym->type != SymbolType::ARRAY)
-                errorReporter.report(ErrorType::INVALID_ARRAY_USAGE, {sym->text});
+                reportError(ErrorType::INVALID_ARRAY_USAGE, {sym->text});
 
             break;
         }
@@ -196,7 +198,7 @@ void checkIdentifierUsage(AstNode* node) {
             Symbol* sym = node->symbol;
 
             if (sym->type != SymbolType::FUNCTION) {
-                errorReporter.report(ErrorType::INVALID_FUNCTION_USAGE, {sym->text});
+                reportError(ErrorType::INVALID_FUNCTION_USAGE, {sym->text});
                 break;
             }
 
@@ -208,19 +210,19 @@ void checkIdentifierUsage(AstNode* node) {
             if (!paramList) break;
 
             if (!argList) {
-                errorReporter.report(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
+                reportError(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
                 break;
             }
 
             if (paramList->children.size() != argList->children.size()) {
-                errorReporter.report(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
+                reportError(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
             } else {
                 for (size_t i = 0; i < paramList->children.size(); ++i) {
                     DataType paramDataType = paramList->children[i]->symbol->dataType;
                     DataType argDataType = inferType(argList->children[i]);
 
                     if (!isCompatible(paramDataType, argDataType)) {
-                        errorReporter.report(
+                        reportError(
                             ErrorType::INVALID_FUNCTION_CALL_2,
                             {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), sym->text}
                         );
@@ -258,7 +260,7 @@ DataType inferType(AstNode* node) {
             if (isArithmeticOp(left, right)) {
                 node->dataType = left;
             } else {
-                errorReporter.report(ErrorType::INVALID_ARITHMETIC_EXPR, {decompileAstNode(node)});
+                reportError(ErrorType::INVALID_ARITHMETIC_EXPR, {decompileAstNode(node)});
             }
             break;
         }
@@ -275,7 +277,7 @@ DataType inferType(AstNode* node) {
             if (isArithmeticOp(left, right)) {
                 node->dataType = DataType::BOOL;
             } else {
-                errorReporter.report(ErrorType::INVALID_RELATIONAL_EXPR, {decompileAstNode(node)});
+                reportError(ErrorType::INVALID_RELATIONAL_EXPR, {decompileAstNode(node)});
             }
             break;
         }
@@ -288,7 +290,7 @@ DataType inferType(AstNode* node) {
             if (left == DataType::BOOL && right == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
             } else {
-                errorReporter.report(ErrorType::INVALID_LOGICAL_EXPR, {decompileAstNode(node)});
+                reportError(ErrorType::INVALID_LOGICAL_EXPR, {decompileAstNode(node)});
             }
             break;
         }
@@ -299,7 +301,7 @@ DataType inferType(AstNode* node) {
             if (child == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
             } else {
-                errorReporter.report(ErrorType::INVALID_LOGICAL_EXPR, {decompileAstNode(node)});
+                reportError(ErrorType::INVALID_LOGICAL_EXPR, {decompileAstNode(node)});
             }
             break;
         }
@@ -323,14 +325,14 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
         case AstNodeType::WHILE_DO:
             // TODO: Verificar com o prof, isso aqui é necessário? Acredito que sim
             if (inferType(cmd->children[0]) != DataType::BOOL) {
-                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
             }
 
             checkCommand(cmd->children[1], returnDataType);
             break;
         case AstNodeType::IF_ELSE:
             if (inferType(cmd->children[0]) != DataType::BOOL) {
-                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
             }
 
             checkCommand(cmd->children[1], returnDataType);
@@ -338,7 +340,7 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
             break;
         case AstNodeType::DO_WHILE:
             if (inferType(cmd->children[1]) != DataType::BOOL) {
-                errorReporter.report(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
             }
 
             checkCommand(cmd->children[0], returnDataType);
@@ -353,7 +355,7 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
             DataType exprDataType = inferType(cmd->children[0]);
 
             if (!isCompatible(exprDataType, returnDataType)) {
-                errorReporter.report(
+                reportError(
                     ErrorType::INVALID_RETURN_TYPE,
                     {getDataTypeLabel(exprDataType), getDataTypeLabel(returnDataType)}
                 );

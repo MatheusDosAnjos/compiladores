@@ -10,7 +10,7 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-ErrorReporter errorReporter;
+unsigned int count = 0;
 
 static const map<ErrorType, string> errorTemplates = {
     {ErrorType::REDECLARED_VARIABLE, "Variable '{0}' redeclared."},
@@ -31,7 +31,7 @@ static const map<ErrorType, string> errorTemplates = {
     {ErrorType::INVALID_RETURN_TYPE, "Invalid return type: '{0}'. Expected '{1}'."},
 };
 
-inline string formatError(ErrorType type, const vector<string>& args) {
+string formatErrorMessage(ErrorType type, const vector<string>& args) {
     string msg = errorTemplates.at(type);
 
     for (size_t i = 0; i < args.size(); ++i) {
@@ -47,17 +47,13 @@ inline string formatError(ErrorType type, const vector<string>& args) {
     return msg;
 }
 
-void ErrorReporter::report(ErrorType type, const vector<string>& args) {
-    string msg = formatError(type, args);
+void reportError(ErrorType type, const vector<string>& args) {
+    string msg = formatErrorMessage(type, args);
     count++;
 
     fprintf(stderr, "\033[0;31mERROR:\033[0m %s\n", msg.c_str());
 }
 
-int ErrorReporter::getCount() const {
-    return count;
-}
-
-bool ErrorReporter::hasErrors() const {
+bool hasErrors() {
     return count > 0;
 }

@@ -28,14 +28,7 @@ enum class ErrorType {
     INVALID_RETURN_TYPE,
 };
 
-struct ErrorReporter {
-    int count = 0;
-
-    void report(ErrorType type, const std::vector<std::string>& args);
-    int getCount() const;
-    bool hasErrors() const;
-};
-
-extern ErrorReporter errorReporter;
+void reportError(ErrorType type, const std::vector<std::string>& args);
+bool hasErrors();
 
 #endif
