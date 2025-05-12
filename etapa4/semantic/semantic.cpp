@@ -18,7 +18,7 @@ void checkDeclarations(AstNode* node);
 void checkIdentifierUsage(AstNode* node);
 void checkUndeclared();
 void checkCommand(AstNode* cmd, DataType returnDataType);
-DataType inferType(AstNode* node);
+DataType inferDataType(AstNode* node);
 
 map<Symbol*, AstNode*> functionDeclarations;
 
@@ -149,7 +149,7 @@ void checkIdentifierUsage(AstNode* node) {
                 reportError(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
             }
 
-            DataType exprDataType = inferType(node->children[0]);
+            DataType exprDataType = inferDataType(node->children[0]);
 
             if (!isCompatible(sym->dataType, exprDataType)) {
                 reportError(
@@ -164,7 +164,7 @@ void checkIdentifierUsage(AstNode* node) {
         case AstNodeType::ASSIGN_ARRAY_ELEM: {
             Symbol* sym = node->children[0]->symbol;
 
-            DataType exprDataType = inferType(node->children[1]);
+            DataType exprDataType = inferDataType(node->children[1]);
 
             if (!isCompatible(sym->dataType, exprDataType)) {
                 reportError(
@@ -219,7 +219,7 @@ void checkIdentifierUsage(AstNode* node) {
             } else {
                 for (size_t i = 0; i < paramList->children.size(); ++i) {
                     DataType paramDataType = paramList->children[i]->symbol->dataType;
-                    DataType argDataType = inferType(argList->children[i]);
+                    DataType argDataType = inferDataType(argList->children[i]);
 
                     if (!isCompatible(paramDataType, argDataType)) {
                         reportError(
@@ -240,7 +240,60 @@ void checkIdentifierUsage(AstNode* node) {
     }
 }
 
-DataType inferType(AstNode* node) {
+void checkCommand(AstNode* cmd, DataType returnDataType) {
+    if (!cmd) {
+        fprintf(stderr, "Error: cmd is null\n");
+        return;
+    }
+
+    switch (cmd->type) {
+        case AstNodeType::IF:
+        case AstNodeType::WHILE_DO:
+            // TODO: Verificar com o prof, isso aqui é necessário? Acredito que sim
+            if (inferDataType(cmd->children[0]) != DataType::BOOL) {
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+            }
+
+            checkCommand(cmd->children[1], returnDataType);
+            break;
+        case AstNodeType::IF_ELSE:
+            if (inferDataType(cmd->children[0]) != DataType::BOOL) {
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
+            }
+
+            checkCommand(cmd->children[1], returnDataType);
+            checkCommand(cmd->children[2], returnDataType);
+            break;
+        case AstNodeType::DO_WHILE:
+            if (inferDataType(cmd->children[1]) != DataType::BOOL) {
+                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
+            }
+
+            checkCommand(cmd->children[0], returnDataType);
+            break;
+        case AstNodeType::READ:
+            // TODO: Checar o que é válido aqui para o identificador (só escalar, só vetor, os dois)?
+            break;
+        case AstNodeType::PRINT:
+            // TODO: Checar aqui o que é válido para as expressões (relacionais, lógicas, aritméticas, etc)
+            break;
+        case AstNodeType::RETURN: {
+            DataType exprDataType = inferDataType(cmd->children[0]);
+
+            if (!isCompatible(exprDataType, returnDataType)) {
+                reportError(
+                    ErrorType::INVALID_RETURN_TYPE,
+                    {getDataTypeLabel(exprDataType), getDataTypeLabel(returnDataType)}
+                );
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+DataType inferDataType(AstNode* node) {
     if (!node) return DataType::NONE;
 
     switch (node->type) {
@@ -254,8 +307,8 @@ DataType inferType(AstNode* node) {
         case AstNodeType::SUB:
         case AstNodeType::MULT:
         case AstNodeType::DIV: {
-            DataType left = inferType(node->children[0]);
-            DataType right = inferType(node->children[1]);
+            DataType left = inferDataType(node->children[0]);
+            DataType right = inferDataType(node->children[1]);
 
             if (isArithmeticOp(left, right)) {
                 node->dataType = left;
@@ -271,8 +324,8 @@ DataType inferType(AstNode* node) {
         case AstNodeType::GE:
         case AstNodeType::EQ:
         case AstNodeType::DIF: {
-            DataType left = inferType(node->children[0]);
-            DataType right = inferType(node->children[1]);
+            DataType left = inferDataType(node->children[0]);
+            DataType right = inferDataType(node->children[1]);
 
             if (isArithmeticOp(left, right)) {
                 node->dataType = DataType::BOOL;
@@ -284,8 +337,8 @@ DataType inferType(AstNode* node) {
 
         case AstNodeType::AND:
         case AstNodeType::OR: {
-            DataType left = inferType(node->children[0]);
-            DataType right = inferType(node->children[1]);
+            DataType left = inferDataType(node->children[0]);
+            DataType right = inferDataType(node->children[1]);
 
             if (left == DataType::BOOL && right == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
@@ -296,7 +349,7 @@ DataType inferType(AstNode* node) {
         }
 
         case AstNodeType::NOT: {
-            DataType child = inferType(node->children[0]);
+            DataType child = inferDataType(node->children[0]);
 
             if (child == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
@@ -307,62 +360,9 @@ DataType inferType(AstNode* node) {
         }
 
         default:
-            for (auto child : node->children) inferType(child);
+            for (auto child : node->children) inferDataType(child);
             return DataType::NONE;
     }
 
     return node->dataType;
-}
-
-void checkCommand(AstNode* cmd, DataType returnDataType) {
-    if (!cmd) {
-        fprintf(stderr, "Error: cmd is null\n");
-        return;
-    }
-
-    switch (cmd->type) {
-        case AstNodeType::IF:
-        case AstNodeType::WHILE_DO:
-            // TODO: Verificar com o prof, isso aqui é necessário? Acredito que sim
-            if (inferType(cmd->children[0]) != DataType::BOOL) {
-                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
-            }
-
-            checkCommand(cmd->children[1], returnDataType);
-            break;
-        case AstNodeType::IF_ELSE:
-            if (inferType(cmd->children[0]) != DataType::BOOL) {
-                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
-            }
-
-            checkCommand(cmd->children[1], returnDataType);
-            checkCommand(cmd->children[2], returnDataType);
-            break;
-        case AstNodeType::DO_WHILE:
-            if (inferType(cmd->children[1]) != DataType::BOOL) {
-                reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
-            }
-
-            checkCommand(cmd->children[0], returnDataType);
-            break;
-        case AstNodeType::READ:
-            // TODO: Checar o que é válido aqui para o identificador (só escalar, só vetor, os dois)?
-            break;
-        case AstNodeType::PRINT:
-            // TODO: Checar aqui o que é válido para as expressões (relacionais, lógicas, aritméticas, etc)
-            break;
-        case AstNodeType::RETURN: {
-            DataType exprDataType = inferType(cmd->children[0]);
-
-            if (!isCompatible(exprDataType, returnDataType)) {
-                reportError(
-                    ErrorType::INVALID_RETURN_TYPE,
-                    {getDataTypeLabel(exprDataType), getDataTypeLabel(returnDataType)}
-                );
-            }
-            break;
-        }
-        default:
-            break;
-    }
 }
