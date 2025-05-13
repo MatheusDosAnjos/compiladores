@@ -14,11 +14,11 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-void checkDeclarations(AstNode* node);
-void checkIdentifierUsage(AstNode* node);
-void checkUndeclared();
+void checkDeclaration(AstNode* node);
 void checkCommand(AstNode* cmd, DataType returnDataType);
-DataType inferDataType(AstNode* node);
+DataType checkExpression(AstNode* node);
+void checkFuncCallExpression(AstNode* node);
+void checkIdentifier(Symbol* symbol, SymbolType expectedSymbolType);
 
 map<Symbol*, AstNode*> functionDeclarations;
 
@@ -36,11 +36,8 @@ static const map<AstNodeType, DataType> dataTypeMap = {
 
 bool runSemanticAnalysis(AstNode* root) {
     for (AstNode* decl : root->children) {
-        checkDeclarations(decl);
+        checkDeclaration(decl);
     }
-
-    checkUndeclared();
-    checkIdentifierUsage(root);
 
     for (AstNode* decl : root->children) {
         if (decl->type != AstNodeType::FUNC_DECL) continue;
@@ -49,7 +46,6 @@ bool runSemanticAnalysis(AstNode* root) {
     }
 
     return hasErrors();
-
 }
 
 void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
@@ -81,7 +77,7 @@ void checkArrayDeclaration(AstNode* arrayDecl, Symbol* symbol) {
     }
 }
 
-void checkDeclarations(AstNode* decl) {
+void checkDeclaration(AstNode* decl) {
     AstNode* identifierNode = decl->children[0];
     Symbol* symbol = identifierNode->symbol;
 
@@ -130,134 +126,90 @@ void checkDeclarations(AstNode* decl) {
     }
 }
 
-void checkUndeclared() {
-    for (const auto& entry : symbolTable) {
-        if (entry.second->type == SymbolType::IDENTIFIER) {
-            reportError(ErrorType::UNDECLARED_VARIABLE, {entry.first});
-        }
-    }
-}
+void checkFuncCallExpression(AstNode* funcCall) {
+    AstNode* funcDecl = functionDeclarations[funcCall->symbol];
 
-void checkIdentifierUsage(AstNode* node) {
-    if (!node) return;
+    if (!funcDecl) return;
 
-    switch (node->type) {
-        case AstNodeType::ASSIGN: {
-            Symbol* sym = node->symbol;
+    AstNode* paramList = funcDecl->children[1];
+    AstNode* argList = funcCall->children[0];
 
-            if (sym->type != SymbolType::VARIABLE){
-                reportError(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
-            }
+    if (!paramList) return;
 
-            DataType exprDataType = inferDataType(node->children[0]);
-
-            if (!isCompatible(sym->dataType, exprDataType)) {
-                reportError(
-                    ErrorType::INCOMPATIBLE_ASSIGN,
-                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
-                );
-            }
-
-            break;
-        }
-
-        case AstNodeType::ASSIGN_ARRAY_ELEM: {
-            Symbol* sym = node->children[0]->symbol;
-
-            DataType exprDataType = inferDataType(node->children[1]);
-
-            if (!isCompatible(sym->dataType, exprDataType)) {
-                reportError(
-                    ErrorType::INCOMPATIBLE_ASSIGN,
-                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(node)}
-                );
-            }
-
-            break;
-        }
-
-        case AstNodeType::SYMBOL: {
-            Symbol* sym = node->symbol;
-
-            if (!isLiteral(sym->type) && sym->type != SymbolType::VARIABLE)
-                reportError(ErrorType::INVALID_SCALAR_USAGE, {sym->text});
-
-            break;
-        }
-
-        case AstNodeType::ARRAY_ELEM: {
-            Symbol* sym = node->symbol;
-
-            if (sym->type != SymbolType::ARRAY)
-                reportError(ErrorType::INVALID_ARRAY_USAGE, {sym->text});
-
-            break;
-        }
-
-        case AstNodeType::FUNC_CALL: {
-            Symbol* sym = node->symbol;
-
-            if (sym->type != SymbolType::FUNCTION) {
-                reportError(ErrorType::INVALID_FUNCTION_USAGE, {sym->text});
-                break;
-            }
-
-            AstNode* funcDecl = functionDeclarations[sym];
-
-            AstNode* paramList = funcDecl->children[1];
-            AstNode* argList = node->children[0];
-
-            if (!paramList) break;
-
-            if (!argList) {
-                reportError(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
-                break;
-            }
-
-            if (paramList->children.size() != argList->children.size()) {
-                reportError(ErrorType::INVALID_FUNCTION_CALL_1, {sym->text});
-            } else {
-                for (size_t i = 0; i < paramList->children.size(); ++i) {
-                    DataType paramDataType = paramList->children[i]->symbol->dataType;
-                    DataType argDataType = inferDataType(argList->children[i]);
-
-                    if (!isCompatible(paramDataType, argDataType)) {
-                        reportError(
-                            ErrorType::INVALID_FUNCTION_CALL_2,
-                            {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), sym->text}
-                        );
-                    }
-                }
-            }
-        }
-
-        default:
-            break;
-        }
-
-    for (auto c : node->children){
-        checkIdentifierUsage(c);
-    }
-}
-
-void checkCommand(AstNode* cmd, DataType returnDataType) {
-    if (!cmd) {
-        fprintf(stderr, "Error: cmd is null\n");
+    if (!argList) {
+        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
         return;
     }
 
+    if (paramList->children.size() != argList->children.size()) {
+        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
+        return;
+    }
+
+    for (size_t i = 0; i < paramList->children.size(); ++i) {
+        DataType paramDataType = paramList->children[i]->symbol->dataType;
+        DataType argDataType = checkExpression(argList->children[i]);
+
+        if (!isCompatible(paramDataType, argDataType)) {
+            reportError(
+                ErrorType::INVALID_FUNCTION_CALL_2,
+                {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), funcCall->symbol->text}
+            );
+        }
+    }
+}
+
+
+void checkCommand(AstNode* cmd, DataType returnDataType) {
+    if (!cmd) return;
+
     switch (cmd->type) {
+        case AstNodeType::CMD_LIST:
+            for (auto* child : cmd->children) {
+                checkCommand(child, returnDataType);
+            }
+            break;
+        case AstNodeType::ASSIGN: {
+            checkIdentifier(cmd->symbol, SymbolType::VARIABLE);
+
+            DataType exprDataType = checkExpression(cmd->children[0]);
+
+            if (!isCompatible(cmd->symbol->dataType, exprDataType)) {
+                reportError(
+                    ErrorType::INCOMPATIBLE_ASSIGN,
+                    {getDataTypeLabel(cmd->symbol->dataType), getDataTypeLabel(exprDataType), decompileAstNode(cmd)}
+                );
+            }
+
+            break;
+        }
+        case AstNodeType::ASSIGN_ARRAY_ELEM: {
+            Symbol* sym = cmd->children[0]->symbol;
+
+            checkIdentifier(sym, SymbolType::ARRAY);
+
+            DataType exprDataType = checkExpression(cmd->children[1]);
+
+            if (!isCompatible(sym->dataType, exprDataType)) {
+                reportError(
+                    ErrorType::INCOMPATIBLE_ASSIGN,
+                    {getDataTypeLabel(sym->dataType), getDataTypeLabel(exprDataType), decompileAstNode(cmd)}
+                );
+            }
+
+            break;
+        }
         case AstNodeType::IF:
         case AstNodeType::WHILE_DO:
             // TODO: Verificar com o prof, isso aqui é necessário? Acredito que sim
-            if (inferDataType(cmd->children[0]) != DataType::BOOL) {
+            if (checkExpression(cmd->children[0]) != DataType::BOOL) {
                 reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
             }
 
             checkCommand(cmd->children[1], returnDataType);
             break;
         case AstNodeType::IF_ELSE:
-            if (inferDataType(cmd->children[0]) != DataType::BOOL) {
+            if (checkExpression(cmd->children[0]) != DataType::BOOL) {
                 reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[0])});
             }
 
@@ -265,7 +217,7 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
             checkCommand(cmd->children[2], returnDataType);
             break;
         case AstNodeType::DO_WHILE:
-            if (inferDataType(cmd->children[1]) != DataType::BOOL) {
+            if (checkExpression(cmd->children[1]) != DataType::BOOL) {
                 reportError(ErrorType::INVALID_CONDITIONAL_EXPR, {decompileAstNode(cmd->children[1])});
             }
 
@@ -273,12 +225,16 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
             break;
         case AstNodeType::READ:
             // TODO: Checar o que é válido aqui para o identificador (só escalar, só vetor, os dois)?
+            checkIdentifier(cmd->symbol, SymbolType::VARIABLE);
             break;
         case AstNodeType::PRINT:
             // TODO: Checar aqui o que é válido para as expressões (relacionais, lógicas, aritméticas, etc)
+            for (auto* child : cmd->children) {
+                checkExpression(child);
+            }
             break;
         case AstNodeType::RETURN: {
-            DataType exprDataType = inferDataType(cmd->children[0]);
+            DataType exprDataType = checkExpression(cmd->children[0]);
 
             if (!isCompatible(exprDataType, returnDataType)) {
                 reportError(
@@ -288,27 +244,37 @@ void checkCommand(AstNode* cmd, DataType returnDataType) {
             }
             break;
         }
+        case AstNodeType::CMD_BLOCK:
+            checkCommand(cmd->children[0], returnDataType);
+            break;
         default:
             break;
     }
 }
 
-DataType inferDataType(AstNode* node) {
+DataType checkExpression(AstNode* node) {
     if (!node) return DataType::NONE;
 
     switch (node->type) {
         case AstNodeType::SYMBOL:
-        case AstNodeType::ARRAY_ELEM:
-        case AstNodeType::FUNC_CALL:
-            return node->symbol->dataType;
-            break;
+            if (!isLiteral(node->symbol->type)) {
+                checkIdentifier(node->symbol, SymbolType::VARIABLE);
+            }
 
+            return node->symbol->dataType;
+        case AstNodeType::ARRAY_ELEM:
+            checkIdentifier(node->symbol, SymbolType::ARRAY);
+            return node->symbol->dataType;
+        case AstNodeType::FUNC_CALL:
+            checkIdentifier(node->symbol, SymbolType::FUNCTION);
+            checkFuncCallExpression(node);
+            return node->symbol->dataType;
         case AstNodeType::ADD:
         case AstNodeType::SUB:
         case AstNodeType::MULT:
         case AstNodeType::DIV: {
-            DataType left = inferDataType(node->children[0]);
-            DataType right = inferDataType(node->children[1]);
+            DataType left = checkExpression(node->children[0]);
+            DataType right = checkExpression(node->children[1]);
 
             if (isArithmeticOp(left, right)) {
                 node->dataType = left;
@@ -324,8 +290,8 @@ DataType inferDataType(AstNode* node) {
         case AstNodeType::GE:
         case AstNodeType::EQ:
         case AstNodeType::DIF: {
-            DataType left = inferDataType(node->children[0]);
-            DataType right = inferDataType(node->children[1]);
+            DataType left = checkExpression(node->children[0]);
+            DataType right = checkExpression(node->children[1]);
 
             if (isArithmeticOp(left, right)) {
                 node->dataType = DataType::BOOL;
@@ -337,8 +303,8 @@ DataType inferDataType(AstNode* node) {
 
         case AstNodeType::AND:
         case AstNodeType::OR: {
-            DataType left = inferDataType(node->children[0]);
-            DataType right = inferDataType(node->children[1]);
+            DataType left = checkExpression(node->children[0]);
+            DataType right = checkExpression(node->children[1]);
 
             if (left == DataType::BOOL && right == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
@@ -349,7 +315,7 @@ DataType inferDataType(AstNode* node) {
         }
 
         case AstNodeType::NOT: {
-            DataType child = inferDataType(node->children[0]);
+            DataType child = checkExpression(node->children[0]);
 
             if (child == DataType::BOOL) {
                 node->dataType = DataType::BOOL;
@@ -360,9 +326,35 @@ DataType inferDataType(AstNode* node) {
         }
 
         default:
-            for (auto child : node->children) inferDataType(child);
+            for (auto child : node->children) checkExpression(child);
             return DataType::NONE;
     }
 
     return node->dataType;
+}
+
+void checkIdentifier(Symbol* symbol, SymbolType expectedSymbolType) {
+    if (symbol->type == SymbolType::IDENTIFIER) {
+        reportError(ErrorType::UNDECLARED_VARIABLE, {symbol->text});
+    }
+
+    switch (expectedSymbolType) {
+        case SymbolType::VARIABLE:
+            if (symbol->type != SymbolType::VARIABLE) {
+                reportError(ErrorType::INVALID_SCALAR_USAGE, {symbol->text});
+            }
+            break;
+        case SymbolType::ARRAY:
+            if (symbol->type != SymbolType::ARRAY) {
+                reportError(ErrorType::INVALID_ARRAY_USAGE, {symbol->text});
+            }
+            break;
+        case SymbolType::FUNCTION:
+            if (symbol->type != SymbolType::FUNCTION) {
+                reportError(ErrorType::INVALID_FUNCTION_USAGE, {symbol->text});
+            }
+            break;
+        default:
+            break;
+    }
 }
