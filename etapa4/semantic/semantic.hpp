@@ -9,6 +9,7 @@ Matheus Adam dos Anjos
 
 #include "../ast.hpp"
 
-bool runSemanticAnalysis(AstNode* node);
+void runSemanticAnalysis(AstNode* node);
+bool hasSematicErrors();
 
 #endif

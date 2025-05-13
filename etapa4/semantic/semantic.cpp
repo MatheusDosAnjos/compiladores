@@ -34,7 +34,7 @@ static const map<AstNodeType, DataType> dataTypeMap = {
     {AstNodeType::REAL, DataType::REAL},
 };
 
-bool runSemanticAnalysis(AstNode* root) {
+void runSemanticAnalysis(AstNode* root) {
     for (AstNode* decl : root->children) {
         checkDeclaration(decl);
     }
@@ -44,7 +44,9 @@ bool runSemanticAnalysis(AstNode* root) {
 
         checkCommand(decl->children[2], decl->children[0]->symbol->dataType);
     }
+}
 
+bool hasSematicErrors() {
     return hasErrors();
 }
 

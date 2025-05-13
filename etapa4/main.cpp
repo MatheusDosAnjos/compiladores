@@ -19,7 +19,7 @@ extern AstNode* astRoot;
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        printf("Error: input/output file missing. Run '%s <input_file>'\n", argv[0]);
+        printf("Error: input file missing. Run '%s <input_file>'\n", argv[0]);
         exit(1);
     }
 
@@ -30,11 +30,8 @@ int main(int argc, char** argv) {
     }
 
     yyparse();
-
-    printAst(astRoot, 0);
-    runSemanticAnalysis(astRoot);
-
     fclose(yyin);
 
-    exit(0);
+    runSemanticAnalysis(astRoot);
+    hasSematicErrors() ? exit(4) : exit(0);
 }
