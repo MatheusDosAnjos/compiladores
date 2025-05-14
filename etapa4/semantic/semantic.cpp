@@ -264,9 +264,17 @@ DataType checkExpression(AstNode* node) {
             }
 
             return node->symbol->dataType;
-        case AstNodeType::ARRAY_ELEM:
+        case AstNodeType::ARRAY_ELEM: {
             checkIdentifier(node->symbol, SymbolType::ARRAY);
+
+            DataType indexDataType = checkExpression(node->children[0]);
+
+            if (!isCompatible(indexDataType, DataType::INT)) {
+                reportError(ErrorType::INVALID_ARRAY_ACCESS, {decompileAstNode(node)});
+            }
+
             return node->symbol->dataType;
+        }
         case AstNodeType::FUNC_CALL:
             checkIdentifier(node->symbol, SymbolType::FUNCTION);
             checkFuncCallExpression(node);

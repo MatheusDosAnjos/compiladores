@@ -23,6 +23,7 @@ static const map<ErrorType, string> errorTemplates = {
     {ErrorType::INVALID_FUNCTION_USAGE, "'{0}' cannot be used as a function."},
     {ErrorType::INVALID_FUNCTION_CALL_1, "Function '{0}' called with wrong number of arguments."},
     {ErrorType::INVALID_FUNCTION_CALL_2, "Type '{1}' is not compatible with '{0}' on function '{2}' call."},
+    {ErrorType::INVALID_ARRAY_ACCESS, "Index must be of type 'int' on '{0}' array access."},
     {ErrorType::INVALID_ARITHMETIC_EXPR, "Invalid arithmetic expression: '{0}'."},
     {ErrorType::INVALID_RELATIONAL_EXPR, "Invalid relational expression: '{0}'."},
     {ErrorType::INVALID_LOGICAL_EXPR, "Invalid logical expression: '{0}'."},

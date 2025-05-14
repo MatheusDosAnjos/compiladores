@@ -49,6 +49,9 @@ int main() {
     print func1(5 < 6);
     print func2(5/2, 5/2, 19);
 
+    // --- INVALID_ARRAY_ACCESS ---
+    print c[func3()] c[5/2] c[5 < 3] c[bbb];
+
     // --- INVALID_ARITHMETIC_EXPR ---
     a = a + (2 < 4);
     a = 2 - 3/5;
@@ -71,6 +74,8 @@ int main() {
     ccc[1] = c[1];
     cccc[1] = 'c';
 
+    // --- INVALID_CONDITIONAL_EXPR ---
+    // --- INVALID_RETURN_TYPE ---
 }
 
 byte func2(int x, byte y, real w) {}
