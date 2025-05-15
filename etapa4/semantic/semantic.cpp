@@ -128,40 +128,6 @@ void checkDeclaration(AstNode* decl) {
     }
 }
 
-void checkFuncCallExpression(AstNode* funcCall) {
-    AstNode* funcDecl = functionDeclarations[funcCall->symbol];
-
-    if (!funcDecl) return;
-
-    AstNode* paramList = funcDecl->children[1];
-    AstNode* argList = funcCall->children[0];
-
-    if (!paramList) return;
-
-    if (!argList) {
-        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
-        return;
-    }
-
-    if (paramList->children.size() != argList->children.size()) {
-        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
-        return;
-    }
-
-    for (size_t i = 0; i < paramList->children.size(); ++i) {
-        DataType paramDataType = paramList->children[i]->symbol->dataType;
-        DataType argDataType = checkExpression(argList->children[i]);
-
-        if (!isCompatible(paramDataType, argDataType)) {
-            reportError(
-                ErrorType::INVALID_FUNCTION_CALL_2,
-                {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), funcCall->symbol->text}
-            );
-        }
-    }
-}
-
-
 void checkCommand(AstNode* cmd, DataType returnDataType) {
     if (!cmd) return;
 
@@ -341,6 +307,39 @@ DataType checkExpression(AstNode* node) {
     }
 
     return node->dataType;
+}
+
+void checkFuncCallExpression(AstNode* funcCall) {
+    AstNode* funcDecl = functionDeclarations[funcCall->symbol];
+
+    if (!funcDecl) return;
+
+    AstNode* paramList = funcDecl->children[1];
+    AstNode* argList = funcCall->children[0];
+
+    if (!paramList) return;
+
+    if (!argList) {
+        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
+        return;
+    }
+
+    if (paramList->children.size() != argList->children.size()) {
+        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
+        return;
+    }
+
+    for (size_t i = 0; i < paramList->children.size(); ++i) {
+        DataType paramDataType = paramList->children[i]->symbol->dataType;
+        DataType argDataType = checkExpression(argList->children[i]);
+
+        if (!isCompatible(paramDataType, argDataType)) {
+            reportError(
+                ErrorType::INVALID_FUNCTION_CALL_2,
+                {getDataTypeLabel(paramDataType), getDataTypeLabel(argDataType), funcCall->symbol->text}
+            );
+        }
+    }
 }
 
 void checkIdentifier(Symbol* symbol, SymbolType expectedSymbolType) {
