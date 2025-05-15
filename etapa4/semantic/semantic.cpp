@@ -302,8 +302,8 @@ DataType checkExpression(AstNode* node) {
         }
 
         default:
-            for (auto child : node->children) checkExpression(child);
             return DataType::NONE;
+            break;
     }
 
     return node->dataType;
@@ -347,23 +347,19 @@ void checkIdentifier(Symbol* symbol, SymbolType expectedSymbolType) {
         reportError(ErrorType::UNDECLARED_VARIABLE, {symbol->text});
     }
 
-    switch (expectedSymbolType) {
-        case SymbolType::VARIABLE:
-            if (symbol->type != SymbolType::VARIABLE) {
+    if (symbol->type != expectedSymbolType) {
+        switch (expectedSymbolType) {
+            case SymbolType::VARIABLE:
                 reportError(ErrorType::INVALID_SCALAR_USAGE, {symbol->text});
-            }
-            break;
-        case SymbolType::ARRAY:
-            if (symbol->type != SymbolType::ARRAY) {
+                break;
+            case SymbolType::ARRAY:
                 reportError(ErrorType::INVALID_ARRAY_USAGE, {symbol->text});
-            }
-            break;
-        case SymbolType::FUNCTION:
-            if (symbol->type != SymbolType::FUNCTION) {
+                break;
+            case SymbolType::FUNCTION:
                 reportError(ErrorType::INVALID_FUNCTION_USAGE, {symbol->text});
-            }
-            break;
-        default:
-            break;
+                break;
+            default:
+                break;
+        }
     }
 }
