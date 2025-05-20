@@ -8,7 +8,7 @@ Matheus Adam dos Anjos
 
 #include "ast.hpp"
 #include "lex.yy.h"
-#include "semantic/semantic.hpp"
+#include "semantic.hpp"
 #include "symbols.hpp"
 
 extern int yyparse(void);

@@ -4,8 +4,7 @@ UFRGS - INF01147 Compiladores - 2025/1
 Matheus Adam dos Anjos
 */
 
-#include <algorithm>
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -13,7 +12,7 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-static const unordered_map<DataType, const char*> dataTypeLabel = {
+static const map<DataType, const char*> dataTypeLabel = {
     {DataType::NONE, "none"},
     {DataType::INT, "int"},
     {DataType::BYTE, "byte"},
@@ -32,12 +31,12 @@ const set<pair<DataType, DataType>> compatibleDataTypes = {
     {DataType::BYTE, DataType::CHAR},
 };
 
-const vector<DataType> arithmeticDatatypes = {
-    DataType::INT,
-    DataType::BYTE,
-    DataType::CHAR,
-    DataType::REAL
-};
+bool isArithmeticDataType(DataType dataType) {
+    return dataType == DataType::INT || 
+           dataType == DataType::BYTE ||
+           dataType == DataType::CHAR ||
+           dataType == DataType::REAL;
+}
 
 string getDataTypeLabel(DataType type) {
     return dataTypeLabel.at(type);
@@ -48,8 +47,8 @@ bool isCompatible(DataType from, DataType to) {
 }
 
 bool isArithmeticOp(DataType left, DataType right) {
-    bool isLeftValid  = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), left)  != arithmeticDatatypes.end();
-    bool isRightValid = find(arithmeticDatatypes.begin(), arithmeticDatatypes.end(), right) != arithmeticDatatypes.end();
+    bool isLeftValid  = isArithmeticDataType(left);
+    bool isRightValid = isArithmeticDataType(right);
 
     if (!isLeftValid || !isRightValid) return false;
 

@@ -6,8 +6,8 @@ Matheus Adam dos Anjos
 
 #include <map>
 #include <set>
-#include "../ast.hpp"
-#include "../symbols.hpp"
+#include "ast.hpp"
+#include "symbols.hpp"
 #include "error_reporter.hpp"
 #include "datatype.hpp"
 #include "semantic.hpp"
@@ -317,9 +317,14 @@ void checkFuncCallExpression(AstNode* funcCall) {
     AstNode* paramList = funcDecl->children[1];
     AstNode* argList = funcCall->children[0];
 
-    if (!paramList) return;
+    if (!paramList && !argList) return;
 
-    if (!argList) {
+    if (!paramList && argList) {
+        reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
+        return;   
+    }
+
+    if (paramList && !argList) {
         reportError(ErrorType::INVALID_FUNCTION_CALL_1, {funcCall->symbol->text});
         return;
     }

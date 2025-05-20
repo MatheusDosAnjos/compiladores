@@ -7,7 +7,7 @@ Matheus Adam dos Anjos
 #ifndef SEMANTIC_HPP
 #define SEMANTIC_HPP
 
-#include "../ast.hpp"
+#include "ast.hpp"
 
 void runSemanticAnalysis(AstNode* node);
 bool hasSematicErrors();

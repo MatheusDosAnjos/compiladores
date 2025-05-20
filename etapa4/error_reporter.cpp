@@ -10,7 +10,7 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-unsigned int count = 0;
+unsigned int counter = 0;
 
 static const map<ErrorType, string> errorTemplates = {
     {ErrorType::REDECLARED_VARIABLE, "Variable '{0}' redeclared."},
@@ -50,11 +50,11 @@ string formatErrorMessage(ErrorType type, const vector<string>& args) {
 
 void reportError(ErrorType type, const vector<string>& args) {
     string msg = formatErrorMessage(type, args);
-    count++;
+    counter++;
 
     fprintf(stderr, "\033[0;31mERROR:\033[0m %s\n", msg.c_str());
 }
 
 bool hasErrors() {
-    return count > 0;
+    return counter > 0;
 }

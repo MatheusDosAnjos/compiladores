@@ -10,7 +10,7 @@ Matheus Adam dos Anjos
 #include <string>
 #include <vector>
 
-#include "semantic/datatype.hpp"
+#include "datatype.hpp"
 #include "symbols.hpp"
 
 enum class AstNodeType {

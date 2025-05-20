@@ -9,10 +9,7 @@ CXXFLAGS = -std=c++11 -Wall
 
 TARGET = etapa4
 
-SEMANTIC_SRC := $(wildcard semantic/*.cpp)
-SEMANTIC_OBJ := $(SEMANTIC_SRC:.cpp=.o)
-
-OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o $(SEMANTIC_OBJ)
+OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o datatype.o error_reporter.o semantic.o
 
 GREEN = \033[0;32m
 RED = \033[0;31m
@@ -50,4 +47,4 @@ test:
 	done
 
 clean:
-	rm $(TARGET) lex.yy.cpp parser.tab.cpp parser.tab.hpp *.o semantic/*.o
+	rm $(TARGET) lex.yy.cpp parser.tab.cpp parser.tab.hpp *.o

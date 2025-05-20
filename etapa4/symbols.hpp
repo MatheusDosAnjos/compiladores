@@ -11,7 +11,7 @@ Matheus Adam dos Anjos
 #include <set>
 #include <string>
 
-#include "semantic/datatype.hpp"
+#include "datatype.hpp"
 
 enum class SymbolType {
     IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
