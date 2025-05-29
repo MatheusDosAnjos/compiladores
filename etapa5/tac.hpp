@@ -12,7 +12,7 @@ Matheus Adam dos Anjos
 #include "symbols.hpp"
 
 enum class TacType {
-    SYMBOL
+    SYMBOL, ADD
 };
 
 struct Tac {

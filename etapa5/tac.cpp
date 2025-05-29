@@ -18,7 +18,7 @@ void printInvertedTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 
 const char* tacTypeLabel[] = {
-    "SYMBOL"
+    "SYMBOL", "ADD"
 };
 
 void printTac(Tac* tac) {
@@ -39,22 +39,28 @@ void printInvertedTacList(Tac* tac) {
 Tac* generateCode(AstNode* node) {
     if (!node) return nullptr;
 
-    int i=0;
     Tac* result = nullptr;
-    Tac* code[4] = {0,0,0,0};
+    std::vector<Tac*> codes;
 
     for (auto& child : node->children) {
-        fprintf(stderr, "Child: %d\n", i);
-        code[i++] = generateCode(child);
+        codes.push_back(generateCode(child));
+    }
+
+    Tac* codeList = nullptr;
+    for (Tac* code : codes) {
+        codeList = joinTacs(codeList, code);
     }
 
     switch (node->type) {
-        case AstNodeType::SYMBOL: {
+        case AstNodeType::SYMBOL:
             result = new Tac(TacType::SYMBOL, node->symbol);
             break;
-        }
+        case AstNodeType::ADD:
+            result = new Tac(TacType::ADD, createTempSymbol(), codes[0]->res, codes[1]->res);
+            result = joinTacs(codeList, result);
+            break;
         default:
-            result = joinTacs(joinTacs(joinTacs(code[0], code[1]), code[2]), code[3]);
+            result = codeList;
     }
 
     return result;
