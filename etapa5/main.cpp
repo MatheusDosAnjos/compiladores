@@ -10,6 +10,7 @@ Matheus Adam dos Anjos
 #include "lex.yy.h"
 #include "semantic.hpp"
 #include "symbols.hpp"
+#include "tac.hpp"
 
 extern int yyparse(void);
 extern int isRunning(void);
@@ -33,5 +34,8 @@ int main(int argc, char** argv) {
     fclose(yyin);
 
     runSemanticAnalysis(astRoot);
-    hasSematicErrors() ? exit(4) : exit(0);
+
+    if (hasSematicErrors()) exit(4);
+
+    printInvertedTacList(generateCode(astRoot));
 }
