@@ -98,9 +98,9 @@ bool isLiteral(SymbolType type) noexcept {
            type == SymbolType::STRING;
 }
 
-Symbol* createTempSymbol() {
+Symbol* makeSymbol() {
     static int counter = 0;
     static char buffer[32];
-    snprintf(buffer, sizeof(buffer), "_temp%d", counter++);
+    snprintf(buffer, sizeof(buffer), "_temp%d_", counter++);
     return addSymbol(SymbolType::IDENTIFIER, buffer);
 }

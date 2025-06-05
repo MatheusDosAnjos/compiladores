@@ -27,7 +27,7 @@ struct Symbol {
 extern std::map<std::string, Symbol*> symbolTable;
 
 Symbol* addSymbol(SymbolType type, char* text);
-Symbol* createTempSymbol();
+Symbol* makeSymbol();
 void printSymbolTable(void);
 
 bool isLiteral(SymbolType type) noexcept;

@@ -96,11 +96,11 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::DIF:
         case AstNodeType::AND:
         case AstNodeType::OR:
-            result = new Tac(astToTacType.at(node->type), createTempSymbol(), codes[0]->res, codes[1]->res);
+            result = new Tac(astToTacType.at(node->type), makeSymbol(), codes[0]->res, codes[1]->res);
             result = joinTacs(codeList, result);
             break;
         case AstNodeType::NOT:
-            result = new Tac(TacType::NOT, createTempSymbol(), codes[0]->res);
+            result = new Tac(TacType::NOT, makeSymbol(), codes[0]->res);
             result = joinTacs(codeList, result);
             break;
         default:
