@@ -17,21 +17,50 @@ void printTac(Tac* tac);
 void printInvertedTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 
-const char* tacTypeLabel[] = {
-    "SYMBOL", "ADD"
+const map<TacType, const char*> tacTypeLabel = {
+    {TacType::SYMBOL, "SYMBOL"},
+    {TacType::ADD, "ADD"},
+    {TacType::SUB, "SUB"},
+    {TacType::MULT, "MULT"},
+    {TacType::DIV, "DIV"},
+    {TacType::LESS, "LESS"},
+    {TacType::GREATER, "GREATER"},
+    {TacType::AND, "AND"},
+    {TacType::OR, "OR"},
+    {TacType::LE, "LE"},
+    {TacType::GE, "GE"},
+    {TacType::EQ, "EQ"},
+    {TacType::DIF, "DIF"},
+    {TacType::NOT, "NOT"}
+};
+
+const map<AstNodeType, TacType> astToTacType = {
+    {AstNodeType::ADD, TacType::ADD},
+    {AstNodeType::SUB, TacType::SUB},
+    {AstNodeType::MULT, TacType::MULT},
+    {AstNodeType::DIV, TacType::DIV},
+    {AstNodeType::LESS, TacType::LESS},
+    {AstNodeType::GREATER, TacType::GREATER},
+    {AstNodeType::LE, TacType::LE},
+    {AstNodeType::GE, TacType::GE},
+    {AstNodeType::EQ, TacType::EQ},
+    {AstNodeType::DIF, TacType::DIF},
+    {AstNodeType::AND, TacType::AND},
+    {AstNodeType::OR, TacType::OR}
 };
 
 void printTac(Tac* tac) {
     if (!tac) return;
 
-    fprintf(stderr, "Tac(%s", tacTypeLabel[static_cast<int>(tac->type)]);
-    fprintf(stderr, ",%s", tac->res ? tac->res->text.c_str() : "-");
-    fprintf(stderr, ",%s", tac->op1 ? tac->op1->text.c_str() : "-");
-    fprintf(stderr, ",%s)\n", tac->op2 ? tac->op2->text.c_str() : "-");
+    fprintf(stderr, "Tac(%s", tacTypeLabel.at(tac->type));
+    fprintf(stderr, ", %s", tac->res ? tac->res->text.c_str() : "-");
+    fprintf(stderr, ", %s", tac->op1 ? tac->op1->text.c_str() : "-");
+    fprintf(stderr, ", %s)\n", tac->op2 ? tac->op2->text.c_str() : "-");
 }
 
 void printInvertedTacList(Tac* tac) {
     for (; tac; tac = tac->prev) {
+        if (tac->type == TacType::SYMBOL) continue;
         printTac(tac);
     }
 }
@@ -56,7 +85,22 @@ Tac* generateCode(AstNode* node) {
             result = new Tac(TacType::SYMBOL, node->symbol);
             break;
         case AstNodeType::ADD:
-            result = new Tac(TacType::ADD, createTempSymbol(), codes[0]->res, codes[1]->res);
+        case AstNodeType::SUB:
+        case AstNodeType::MULT:
+        case AstNodeType::DIV:
+        case AstNodeType::LESS:
+        case AstNodeType::GREATER:
+        case AstNodeType::LE:
+        case AstNodeType::GE:
+        case AstNodeType::EQ:
+        case AstNodeType::DIF:
+        case AstNodeType::AND:
+        case AstNodeType::OR:
+            result = new Tac(astToTacType.at(node->type), createTempSymbol(), codes[0]->res, codes[1]->res);
+            result = joinTacs(codeList, result);
+            break;
+        case AstNodeType::NOT:
+            result = new Tac(TacType::NOT, createTempSymbol(), codes[0]->res);
             result = joinTacs(codeList, result);
             break;
         default:
