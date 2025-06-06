@@ -22,6 +22,10 @@ const map<TacType, const char*> tacTypeLabel = {
     {TacType::MOVE, "MOVE"},
     {TacType::MOVE_IDX, "MOVE_IDX"},
     {TacType::IDX_ACCESS, "IDX_ACCESS"},
+    {TacType::IF, "IF"},
+    {TacType::IF_ELSE, "IF_ELSE"},
+    {TacType::WHILE_DO, "WHILE_DO"},
+    {TacType::DO_WHILE, "DO_WHILE"},
     {TacType::IFZ, "IFZ"},
     {TacType::JUMP, "JUMP"},
     {TacType::LABEL, "LABEL"},
@@ -104,6 +108,18 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::ARRAY_ELEM:
             result = new Tac(TacType::IDX_ACCESS, makeSymbol(), node->symbol, codes[0]->res);
             result = joinTacs(codeList, result);
+            break;
+        // TODO
+        case AstNodeType::IF:
+            break;
+        // TODO
+        case AstNodeType::IF_ELSE:
+            break;
+        // TODO
+        case AstNodeType::WHILE_DO:
+            break;
+        // TODO
+        case AstNodeType::DO_WHILE:
             break;
         case AstNodeType::READ:
             result = new Tac(TacType::READ, node->symbol);
