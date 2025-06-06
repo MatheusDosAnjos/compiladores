@@ -12,8 +12,10 @@ Matheus Adam dos Anjos
 #include "symbols.hpp"
 
 enum class TacType {
-    SYMBOL, ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,
-
+    SYMBOL,
+    MOVE, MOVE_IDX,
+    IFZ, JUMP, LABEL, READ, PRINT, RETURN,
+    ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,
 };
 
 struct Tac {

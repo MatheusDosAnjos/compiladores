@@ -14,7 +14,7 @@ Matheus Adam dos Anjos
 #include "datatype.hpp"
 
 enum class SymbolType {
-    IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
+    IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING, LABEL
 };
 
 struct Symbol {
@@ -28,6 +28,7 @@ extern std::map<std::string, Symbol*> symbolTable;
 
 Symbol* addSymbol(SymbolType type, char* text);
 Symbol* makeSymbol();
+Symbol* makeLabel();
 void printSymbolTable(void);
 
 bool isLiteral(SymbolType type) noexcept;

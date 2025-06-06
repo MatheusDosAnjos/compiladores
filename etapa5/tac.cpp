@@ -19,6 +19,14 @@ Tac* joinTacs(Tac* first, Tac* second);
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
+    {TacType::MOVE, "MOVE"},
+    {TacType::MOVE_IDX, "MOVE_IDX"},
+    {TacType::IFZ, "IFZ"},
+    {TacType::JUMP, "JUMP"},
+    {TacType::LABEL, "LABEL"},
+    {TacType::READ, "READ"},
+    {TacType::PRINT, "PRINT"},
+    {TacType::RETURN, "RETURN"},
     {TacType::ADD, "ADD"},
     {TacType::SUB, "SUB"},
     {TacType::MULT, "MULT"},
@@ -83,6 +91,21 @@ Tac* generateCode(AstNode* node) {
     switch (node->type) {
         case AstNodeType::SYMBOL:
             result = new Tac(TacType::SYMBOL, node->symbol);
+            break;
+        case AstNodeType::READ:
+            result = new Tac(TacType::READ, node->symbol);
+            result = joinTacs(codeList, result);
+            break;
+        case AstNodeType::PRINT:
+            for (size_t i = 0; i < codes.size(); i++) {
+                Tac* printTac = new Tac(TacType::PRINT, codes[i]->res);
+                result = joinTacs(result, printTac);
+            }
+            result = joinTacs(codeList, result);
+            break;
+        case AstNodeType::RETURN:
+            result = new Tac(TacType::RETURN, codes[0]->res);
+            result = joinTacs(codeList, result);
             break;
         case AstNodeType::ADD:
         case AstNodeType::SUB:

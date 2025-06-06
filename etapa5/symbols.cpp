@@ -104,3 +104,10 @@ Symbol* makeSymbol() {
     snprintf(buffer, sizeof(buffer), "_temp%d_", counter++);
     return addSymbol(SymbolType::IDENTIFIER, buffer);
 }
+
+Symbol* makeLabel() {
+    static int counter = 0;
+    static char buffer[32];
+    snprintf(buffer, sizeof(buffer), "_label%d_", counter++);
+    return addSymbol(SymbolType::LABEL, buffer);
+}
