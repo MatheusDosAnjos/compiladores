@@ -16,6 +16,7 @@ using namespace std;
 void printTac(Tac* tac);
 void printInvertedTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
+Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
@@ -100,31 +101,24 @@ Tac* generateCode(AstNode* node) {
         codes.push_back(generateCode(child));
     }
 
-    Tac* codeList = nullptr;
-    for (Tac* code : codes) {
-        codeList = joinTacs(codeList, code);
-    }
-
     switch (node->type) {
         case AstNodeType::SYMBOL:
             result = new Tac(TacType::SYMBOL, node->symbol);
             break;
         case AstNodeType::ASSIGN:
             result = new Tac(TacType::MOVE, node->symbol, codes[0]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(codes[0], result);
             break;
         case AstNodeType::ASSIGN_ARRAY_ELEM:
             result = new Tac(TacType::MOVE_IDX, node->symbol, codes[0]->res, codes[1]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(joinTacs(codes[0], codes[1]), result);
             break;
         case AstNodeType::ARRAY_ELEM:
             result = new Tac(TacType::IDX_ACCESS, makeSymbol(), node->symbol, codes[0]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(codes[0], result);
             break;
         // TODO
         case AstNodeType::IF:
-            break;
-        // TODO
         case AstNodeType::IF_ELSE:
             break;
         // TODO
@@ -135,18 +129,16 @@ Tac* generateCode(AstNode* node) {
             break;
         case AstNodeType::READ:
             result = new Tac(TacType::READ, node->symbol);
-            result = joinTacs(codeList, result);
             break;
         case AstNodeType::PRINT:
-            for (size_t i = 0; i < codes.size(); i++) {
-                Tac* printTac = new Tac(TacType::PRINT, codes[i]->res);
-                result = joinTacs(result, printTac);
+            for (Tac* code : codes) {
+                Tac* printTac = new Tac(TacType::PRINT, code->res);
+                result = joinTacs(joinTacs(result, code), printTac);
             }
-            result = joinTacs(codeList, result);
             break;
         case AstNodeType::RETURN:
             result = new Tac(TacType::RETURN, codes[0]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(codes[0], result);
             break;
         case AstNodeType::ADD:
         case AstNodeType::SUB:
@@ -161,14 +153,17 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::AND:
         case AstNodeType::OR:
             result = new Tac(astToTacType.at(node->type), makeSymbol(), codes[0]->res, codes[1]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(joinTacs(codes[0], codes[1]), result);
             break;
         case AstNodeType::NOT:
             result = new Tac(TacType::NOT, makeSymbol(), codes[0]->res);
-            result = joinTacs(codeList, result);
+            result = joinTacs(codes[0], result);
             break;
         default:
-            result = codeList;
+            for (Tac* code : codes) {
+                result = joinTacs(result, code);
+            }
+            break;
     }
 
     return result;

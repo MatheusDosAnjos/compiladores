@@ -109,5 +109,5 @@ Symbol* makeLabel() {
     static int counter = 0;
     static char buffer[32];
     snprintf(buffer, sizeof(buffer), "_label%d_", counter++);
-    return addSymbol(SymbolType::LABEL, buffer);
+    return addSymbol(SymbolType::IDENTIFIER, buffer);
 }
