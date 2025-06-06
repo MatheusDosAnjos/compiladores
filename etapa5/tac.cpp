@@ -117,9 +117,9 @@ Tac* generateCode(AstNode* node) {
             result = new Tac(TacType::IDX_ACCESS, makeSymbol(), node->symbol, codes[0]->res);
             result = joinTacs(codes[0], result);
             break;
-        // TODO
         case AstNodeType::IF:
         case AstNodeType::IF_ELSE:
+            result = generateIfElseCode(codes[0], codes[1], codes.size() > 2 ? codes[2] : nullptr);
             break;
         // TODO
         case AstNodeType::WHILE_DO:
@@ -168,3 +168,24 @@ Tac* generateCode(AstNode* node) {
 
     return result;
 }
+
+Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode) {
+    Symbol* elseLabel = makeLabel();
+    Tac* elseLabelTac = new Tac(TacType::LABEL, elseLabel);
+
+    Tac* ifzTac = new Tac(TacType::IFZ, elseLabel, condition->res);
+
+    ifzTac->prev = condition;
+    elseLabelTac->prev = ifCode;
+
+    return joinTacs(ifzTac, elseLabelTac);
+}
+
+// CONDITION
+// IF FALSE JUMP LABEL1
+// IF_CODE
+// JUMP LABEL2
+// LABEL1
+// ELSE_CODE
+// LABEL2
+// REST
