@@ -78,6 +78,18 @@ void printInvertedTacList(Tac* tac) {
     }
 }
 
+Tac* joinTacs(Tac* first, Tac* second) {
+    if (!first) return second;
+    if (!second) return first;
+
+    Tac* cur = second;
+    for (; cur->prev; cur = cur->prev);
+
+    cur->prev = first;
+
+    return second;
+}
+
 Tac* generateCode(AstNode* node) {
     if (!node) return nullptr;
 
@@ -160,16 +172,4 @@ Tac* generateCode(AstNode* node) {
     }
 
     return result;
-}
-
-Tac* joinTacs(Tac* first, Tac* second) {
-    if (!first) return second;
-    if (!second) return first;
-
-    Tac* cur = second;
-    for (; cur->prev; cur = cur->prev);
-
-    cur->prev = first;
-
-    return second;
 }
