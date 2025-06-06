@@ -23,10 +23,6 @@ const map<TacType, const char*> tacTypeLabel = {
     {TacType::MOVE, "MOVE"},
     {TacType::MOVE_IDX, "MOVE_IDX"},
     {TacType::IDX_ACCESS, "IDX_ACCESS"},
-    {TacType::IF, "IF"},
-    {TacType::IF_ELSE, "IF_ELSE"},
-    {TacType::WHILE_DO, "WHILE_DO"},
-    {TacType::DO_WHILE, "DO_WHILE"},
     {TacType::IFZ, "IFZ"},
     {TacType::JUMP, "JUMP"},
     {TacType::LABEL, "LABEL"},
@@ -74,8 +70,13 @@ void printTac(Tac* tac) {
 
 void printInvertedTacList(Tac* tac) {
     for (; tac; tac = tac->prev) {
-        if (tac->type == TacType::SYMBOL) continue;
-        printTac(tac);
+        if (tac-> type == TacType::LABEL) {
+            fprintf(stderr, "-> %s:\n", tac->res->text.c_str());
+            continue;
+        }
+        
+        if (tac->type != TacType::SYMBOL)
+            printTac(tac);
     }
 }
 
@@ -171,21 +172,18 @@ Tac* generateCode(AstNode* node) {
 
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode) {
     Symbol* elseLabel = makeLabel();
+    Symbol* endLabel = makeLabel();
+    
     Tac* elseLabelTac = new Tac(TacType::LABEL, elseLabel);
-
+    Tac* endLabelTac = new Tac(TacType::LABEL, endLabel);
+    
     Tac* ifzTac = new Tac(TacType::IFZ, elseLabel, condition->res);
+    Tac* jumpEndTac = new Tac(TacType::JUMP, endLabel);
 
-    ifzTac->prev = condition;
-    elseLabelTac->prev = ifCode;
-
-    return joinTacs(ifzTac, elseLabelTac);
+    return joinTacs(condition,
+            joinTacs(ifzTac,
+            joinTacs(ifCode,
+            joinTacs(jumpEndTac,
+            joinTacs(elseLabelTac,
+            joinTacs(elseCode, endLabelTac))))));
 }
-
-// CONDITION
-// IF FALSE JUMP LABEL1
-// IF_CODE
-// JUMP LABEL2
-// LABEL1
-// ELSE_CODE
-// LABEL2
-// REST
