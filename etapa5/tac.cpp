@@ -19,6 +19,7 @@ Tac* joinTacs(Tac* first, Tac* second);
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 Tac* generateWhileDoCode(Tac* condition, Tac* code);
 Tac* generateDoWhileCode(Tac* condition, Tac* code);
+Tac* generateFuncCallCode(Tac* args, Symbol* funcName);
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
@@ -31,6 +32,8 @@ const map<TacType, const char*> tacTypeLabel = {
     {TacType::READ, "READ"},
     {TacType::PRINT, "PRINT"},
     {TacType::RETURN, "RETURN"},
+    {TacType::FUNC_CALL, "FUNC_CALL"},
+    {TacType::ARG, "ARG"},
     {TacType::ADD, "ADD"},
     {TacType::SUB, "SUB"},
     {TacType::MULT, "MULT"},
@@ -46,7 +49,7 @@ const map<TacType, const char*> tacTypeLabel = {
     {TacType::NOT, "NOT"}
 };
 
-const map<AstNodeType, TacType> astToTacType = {
+const map<AstNodeType, TacType> binaryOpAstToTac = {
     {AstNodeType::ADD, TacType::ADD},
     {AstNodeType::SUB, TacType::SUB},
     {AstNodeType::MULT, TacType::MULT},
@@ -143,6 +146,15 @@ Tac* generateCode(AstNode* node) {
             result = new Tac(TacType::RETURN, codes[0]->res);
             result = joinTacs(codes[0], result);
             break;
+        case AstNodeType::FUNC_CALL:
+            result = generateFuncCallCode(codes[0], node->symbol);
+            break;
+        case AstNodeType::ARG_LIST:
+            for (Tac* code : codes) {
+                Tac* argTac = new Tac(TacType::ARG, code->res);
+                result = joinTacs(joinTacs(result, code), argTac);
+            }
+            break;
         case AstNodeType::ADD:
         case AstNodeType::SUB:
         case AstNodeType::MULT:
@@ -155,7 +167,7 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::DIF:
         case AstNodeType::AND:
         case AstNodeType::OR:
-            result = new Tac(astToTacType.at(node->type), makeSymbol(), codes[0]->res, codes[1]->res);
+            result = new Tac(binaryOpAstToTac.at(node->type), makeSymbol(), codes[0]->res, codes[1]->res);
             result = joinTacs(joinTacs(codes[0], codes[1]), result);
             break;
         case AstNodeType::NOT:
@@ -222,4 +234,9 @@ Tac* generateDoWhileCode(Tac* condition, Tac* code) {
             joinTacs(condition,
             joinTacs(ifzTac,
             joinTacs(jumpStartTac, endLabelTac)))));
+}
+
+Tac* generateFuncCallCode(Tac* args, Symbol* funcName) {
+    Tac* funcCallTac = new Tac(TacType::FUNC_CALL, makeSymbol(), funcName);
+    return joinTacs(args, funcCallTac);
 }

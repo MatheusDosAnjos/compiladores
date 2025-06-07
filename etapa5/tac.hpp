@@ -13,8 +13,8 @@ Matheus Adam dos Anjos
 
 enum class TacType {
     SYMBOL,
-    MOVE, MOVE_IDX, IDX_ACCESS,
-    IFZ, JUMP, LABEL, READ, PRINT, RETURN,
+    MOVE, MOVE_IDX, IDX_ACCESS, IFZ, JUMP, LABEL,
+    READ, PRINT, RETURN, FUNC_CALL, ARG,
     ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,
 };
 
