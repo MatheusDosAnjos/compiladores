@@ -27,7 +27,7 @@ struct Tac {
     Tac* next = nullptr;
 
     public:
-        Tac(TacType t, Symbol* r = nullptr, Symbol* o1 = nullptr, Symbol* o2 = nullptr):
+        Tac(TacType t, Symbol* r, Symbol* o1 = nullptr, Symbol* o2 = nullptr):
             type(t), res(r), op1(o1), op2(o2) {}
 };
 
