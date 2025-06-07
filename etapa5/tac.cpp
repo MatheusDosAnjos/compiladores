@@ -18,6 +18,7 @@ void printInvertedTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 Tac* generateWhileDoCode(Tac* condition, Tac* code);
+Tac* generateDoWhileCode(Tac* condition, Tac* code);
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
@@ -126,8 +127,8 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::WHILE_DO:
             result = generateWhileDoCode(codes[0], codes[1]);
             break;
-        // TODO
         case AstNodeType::DO_WHILE:
+            result = generateDoWhileCode(codes[1], codes[0]);
             break;
         case AstNodeType::READ:
             result = new Tac(TacType::READ, node->symbol);
@@ -203,5 +204,22 @@ Tac* generateWhileDoCode(Tac* condition, Tac* code) {
             joinTacs(condition,
             joinTacs(ifzTac,
             joinTacs(code,
+            joinTacs(jumpStartTac, endLabelTac)))));
+}
+
+Tac* generateDoWhileCode(Tac* condition, Tac* code) {
+    Symbol* startLabel = makeLabel();
+    Symbol* endLabel = makeLabel();
+
+    Tac* startLabelTac = new Tac(TacType::LABEL, startLabel);
+    Tac* endLabelTac = new Tac(TacType::LABEL, endLabel);
+
+    Tac* ifzTac = new Tac(TacType::IFZ, endLabel, condition->res);
+    Tac* jumpStartTac = new Tac(TacType::JUMP, startLabel);
+
+    return joinTacs(startLabelTac,
+            joinTacs(code,
+            joinTacs(condition,
+            joinTacs(ifzTac,
             joinTacs(jumpStartTac, endLabelTac)))));
 }
