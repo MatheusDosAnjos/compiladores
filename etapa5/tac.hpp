@@ -1,5 +1,5 @@
 /*
-27/05/2025
+03/06/2025
 UFRGS - INF01147 Compiladores - 2025/1
 Matheus Adam dos Anjos
 */
@@ -12,7 +12,7 @@ Matheus Adam dos Anjos
 #include "symbols.hpp"
 
 enum class TacType {
-    SYMBOL,
+    SYMBOL, BEGIN_FUNC, END_FUNC,
     MOVE, MOVE_IDX, IDX_ACCESS, IFZ, JUMP, LABEL,
     READ, PRINT, RETURN, FUNC_CALL, ARG,
     ADD, SUB, MULT, DIV, LESS, GREATER, AND, OR, LE, GE, EQ, DIF, NOT,

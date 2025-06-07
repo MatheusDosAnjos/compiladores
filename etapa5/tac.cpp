@@ -1,5 +1,5 @@
 /*
-27/05/2025
+03/06/2025
 UFRGS - INF01147 Compiladores - 2025/1
 Matheus Adam dos Anjos
 */
@@ -24,6 +24,8 @@ Tac* generateFuncCallCode(Tac* args, Symbol* funcName);
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
+    {TacType::BEGIN_FUNC, "BEGIN_FUNC"},
+    {TacType::END_FUNC, "END_FUNC"},
     {TacType::MOVE, "MOVE"},
     {TacType::MOVE_IDX, "MOVE_IDX"},
     {TacType::IDX_ACCESS, "IDX_ACCESS"},
@@ -112,6 +114,13 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::SYMBOL:
             result = new Tac(TacType::SYMBOL, node->symbol);
             break;
+        case AstNodeType::FUNC_DECL: {
+            Symbol* funcName = node->children[0]->symbol;
+            result = new Tac(TacType::BEGIN_FUNC, funcName);
+            result = joinTacs(result, codes[2]);
+            result = joinTacs(result, new Tac(TacType::END_FUNC, funcName));
+            break;
+        }
         case AstNodeType::ASSIGN:
             result = new Tac(TacType::MOVE, node->symbol, codes[0]->res);
             result = joinTacs(codes[0], result);
