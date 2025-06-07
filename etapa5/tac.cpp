@@ -8,8 +8,9 @@ Matheus Adam dos Anjos
 #include <map>
 #include <sstream>
 #include <string>
-#include "tac.hpp"
 #include "ast.hpp"
+#include "tac.hpp"
+#include "semantic.hpp"
 
 using namespace std;
 
@@ -238,5 +239,23 @@ Tac* generateDoWhileCode(Tac* condition, Tac* code) {
 
 Tac* generateFuncCallCode(Tac* args, Symbol* funcName) {
     Tac* funcCallTac = new Tac(TacType::FUNC_CALL, makeSymbol(), funcName);
+
+    AstNode* funcDecl = functionDeclarations[funcName];
+    AstNode* paramList = funcDecl->children[1];
+
+    if (paramList) {
+        size_t currArgIndex = paramList->children.size();
+
+        Tac* currArg = args;
+        while (currArg && currArgIndex > 0) {
+            if (currArg->type == TacType::ARG) {
+                currArgIndex--;
+                currArg->op1 = funcName;
+                currArg->op2 = paramList->children[currArgIndex]->symbol;
+            }
+            currArg = currArg->prev;
+        }
+    }
+
     return joinTacs(args, funcCallTac);
 }

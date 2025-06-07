@@ -7,7 +7,10 @@ Matheus Adam dos Anjos
 #ifndef SEMANTIC_HPP
 #define SEMANTIC_HPP
 
+#include <map>
 #include "ast.hpp"
+
+extern std::map<Symbol*, AstNode*> functionDeclarations;
 
 void runSemanticAnalysis(AstNode* node);
 bool hasSematicErrors();
