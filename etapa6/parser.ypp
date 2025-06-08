@@ -1,0 +1,204 @@
+/*
+15/04/2025
+UFRGS - INF01147 Compiladores - 2025/1
+Matheus Adam dos Anjos
+*/
+
+%{
+    #include <vector>
+
+    #include "ast.hpp"
+    #include "lex.yy.h"
+    #include "symbols.hpp"
+
+    extern void yyerror(const char *s);
+    extern int getLineNumber(void);
+
+    AstNode* astRoot = nullptr;
+%}
+
+%union
+{
+	AstNode* node;
+    std::vector<AstNode*>* nodevec;
+	Symbol* symbol;
+};
+
+%token KW_BYTE
+%token KW_INT
+%token KW_REAL
+%token KW_IF
+%token KW_ELSE
+%token KW_DO
+%token KW_WHILE
+%token KW_READ
+%token KW_PRINT
+%token KW_RETURN
+%token OPERATOR_LE
+%token OPERATOR_GE
+%token OPERATOR_EQ
+%token OPERATOR_DIF
+%token<symbol> TK_IDENTIFIER
+%token<symbol> LIT_INT
+%token<symbol> LIT_CHAR
+%token<symbol> LIT_REAL
+%token<symbol> LIT_STRING
+%token TOKEN_ERROR
+
+%type<node> program decl var_decl var_def array_decl func_decl
+%type<node> type value array_elem expr func_call
+%type<node> cmd_block cmd assign_cmd if_cmd while_do_cmd do_while_cmd read_cmd print_cmd return_cmd
+%type<nodevec> decl_list array_init_list cmd_list param_list print_list arg_list
+%type<node> array_init cmd_item param_item print_item arg_item
+
+%right '=' '~'
+%left '&' '|'
+%left '<' '>' OPERATOR_LE OPERATOR_GE OPERATOR_EQ OPERATOR_DIF
+%left '+' '-'
+%left '*' '/'
+
+%%
+
+program: decl_list                                  { astRoot = createAstNode(AstNodeType::DECL_LIST, *$1); }
+    |                                               { $$ = nullptr; }
+    ;
+
+decl_list: decl                                     { $$ = createAstNodeList($1); }
+    | decl decl_list                                { $$ = insertAstNodeItem($1, $2); }
+    ;
+
+decl: var_decl | func_decl
+    ;
+
+var_decl: var_def '=' value ';'                     { $$ = createAstNode(AstNodeType::VAR_DECL, {$1, $3}); }
+    | array_decl ';'
+    ;
+
+var_def: type TK_IDENTIFIER                         { $$ = createAstNode(AstNodeType::VAR_DEF, {$1}, $2); }
+    ;
+
+type: KW_BYTE                                       { $$ = createAstNode(AstNodeType::BYTE, {}); }
+    | KW_INT                                        { $$ = createAstNode(AstNodeType::INT, {}); }
+    | KW_REAL                                       { $$ = createAstNode(AstNodeType::REAL, {}); }
+    ;
+
+value: LIT_INT                                      { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    | LIT_CHAR                                      { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    | LIT_REAL                                      { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    ;
+
+array_decl: var_def '[' LIT_INT ']'                 { $$ = createAstNode(AstNodeType::ARRAY_DECL, {$1}, $3); }
+    | var_def '[' LIT_INT ']' '=' array_init        { $$ = createAstNode(AstNodeType::ARRAY_DECL, {$1, $6}, $3); }
+    ;
+
+array_init: array_init_list                         { $$ = createAstNode(AstNodeType::ARRAY_INIT, *$1); }
+    ;
+
+array_init_list: value                              { $$ = createAstNodeList($1); }
+    | value ',' array_init_list                     { $$ = insertAstNodeItem($1, $3); }
+    ;
+
+func_decl: var_def '(' param_item ')' cmd_block     { $$ = createAstNode(AstNodeType::FUNC_DECL, {$1, $3, $5}); }
+    ;
+
+param_item: param_list                              { $$ = createAstNode(AstNodeType::PARAM_LIST, *$1); }  
+    |                                               { $$ = nullptr; }
+    ;
+
+param_list: var_def                                 { $$ = createAstNodeList($1); }
+    | var_def ',' param_list                        { $$ = insertAstNodeItem($1, $3); }
+    ;
+
+cmd_block: '{' cmd_item '}'                         { $$ = createAstNode(AstNodeType::CMD_BLOCK, {$2}); }
+    ;
+
+cmd_item: cmd_list                                  { $$ = createAstNode(AstNodeType::CMD_LIST, *$1); }
+    |                                               { $$ = nullptr; }
+    ;
+
+cmd_list: cmd                                       { $$ = createAstNodeList($1); }
+    | cmd cmd_list                                  { $$ = insertAstNodeItem($1, $2); }
+    ;
+
+cmd: assign_cmd
+    | if_cmd
+    | while_do_cmd
+    | do_while_cmd
+    | read_cmd
+    | print_cmd
+    | return_cmd
+    | cmd_block
+    | ';'                                           { $$ = nullptr; }
+    ;
+
+assign_cmd: TK_IDENTIFIER '=' expr ';'              { $$ = createAstNode(AstNodeType::ASSIGN, {$3}, $1); }
+    | array_elem '=' expr ';'                       { $$ = createAstNode(AstNodeType::ASSIGN_ARRAY_ELEM, {$1, $3}); }
+    ;
+
+array_elem: TK_IDENTIFIER '[' expr ']'              { $$ = createAstNode(AstNodeType::ARRAY_ELEM, {$3}, $1); }
+    ;
+
+if_cmd: KW_IF '(' expr ')' cmd                      { $$ = createAstNode(AstNodeType::IF, {$3, $5}); }
+    | KW_IF '(' expr ')' cmd KW_ELSE cmd            { $$ = createAstNode(AstNodeType::IF_ELSE, {$3, $5, $7}); }
+    ;
+
+while_do_cmd: KW_WHILE expr KW_DO cmd               { $$ = createAstNode(AstNodeType::WHILE_DO, {$2, $4}); }
+    ;
+
+do_while_cmd: KW_DO cmd KW_WHILE expr ';'           { $$ = createAstNode(AstNodeType::DO_WHILE, {$2, $4}); }
+    ;
+
+read_cmd: KW_READ TK_IDENTIFIER ';'                 { $$ = createAstNode(AstNodeType::READ, {}, $2); }
+    ;
+
+print_cmd: KW_PRINT print_list ';'                  { $$ = createAstNode(AstNodeType::PRINT, *$2); }
+    ;
+
+print_list: print_item                              { $$ = createAstNodeList($1); }
+    | print_item print_list                         { $$ = insertAstNodeItem($1, $2); }
+    ;
+
+print_item: LIT_STRING                              { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    | expr
+    ;
+
+return_cmd: KW_RETURN expr ';'                      { $$ = createAstNode(AstNodeType::RETURN, {$2}); }
+    ;
+
+expr: TK_IDENTIFIER                                 { $$ = createAstNode(AstNodeType::SYMBOL, {}, $1); }
+    | array_elem
+    | expr '+' expr                                 { $$ = createAstNode(AstNodeType::ADD, {$1, $3}); }
+    | expr '-' expr                                 { $$ = createAstNode(AstNodeType::SUB, {$1, $3}); }
+    | expr '*' expr                                 { $$ = createAstNode(AstNodeType::MULT, {$1, $3}); }
+    | expr '/' expr                                 { $$ = createAstNode(AstNodeType::DIV, {$1, $3}); }
+    | expr '<' expr                                 { $$ = createAstNode(AstNodeType::LESS, {$1, $3}); }
+    | expr '>' expr                                 { $$ = createAstNode(AstNodeType::GREATER, {$1, $3}); }
+    | expr '&' expr                                 { $$ = createAstNode(AstNodeType::AND, {$1, $3}); }
+    | expr '|' expr                                 { $$ = createAstNode(AstNodeType::OR, {$1, $3}); }
+    | expr OPERATOR_LE expr                         { $$ = createAstNode(AstNodeType::LE, {$1, $3}); }
+    | expr OPERATOR_GE expr                         { $$ = createAstNode(AstNodeType::GE, {$1, $3}); }
+    | expr OPERATOR_EQ expr                         { $$ = createAstNode(AstNodeType::EQ, {$1, $3}); }
+    | expr OPERATOR_DIF expr                        { $$ = createAstNode(AstNodeType::DIF, {$1, $3}); }
+    | '~' expr                                      { $$ = createAstNode(AstNodeType::NOT, {$2}); }
+    | '(' expr ')'                                  { $$ = $2; }
+    | func_call
+    | value
+    ;
+
+func_call: TK_IDENTIFIER '(' arg_item ')'           { $$ = createAstNode(AstNodeType::FUNC_CALL, {$3}, $1); }
+    ;
+
+arg_item: arg_list                                  { $$ = createAstNode(AstNodeType::ARG_LIST, *$1); }
+    |                                               { $$ = nullptr; }
+    ;
+
+arg_list: expr                                      { $$ = createAstNodeList($1); }
+    | expr ',' arg_list                             { $$ = insertAstNodeItem($1, $3); }
+    ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Syntax error at line: %d\n", getLineNumber());
+    exit(3);
+}
