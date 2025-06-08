@@ -9,7 +9,7 @@ CXXFLAGS = -std=c++11 -Wall
 
 TARGET = etapa6
 
-OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o datatype.o error_reporter.o semantic.o tac.o
+OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o datatype.o error_reporter.o semantic.o tac.o asm.o
 
 GREEN = \033[0;32m
 RED = \033[0;31m

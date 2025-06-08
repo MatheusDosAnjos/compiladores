@@ -6,6 +6,7 @@ Matheus Adam dos Anjos
 
 #include <stdio.h>
 
+#include "asm.hpp"
 #include "ast.hpp"
 #include "lex.yy.h"
 #include "semantic.hpp"
@@ -36,6 +37,20 @@ int main(int argc, char** argv) {
     runSemanticAnalysis(astRoot);
 
     if (hasSematicErrors()) exit(4);
+    
+    Tac* tacList = generateCode(astRoot);
+    tacList = invertTacList(tacList);
 
-    printInvertedTacList(generateCode(astRoot));
+    FILE* output = fopen("out.s", "w");
+    if (output == NULL) {
+        printf("Error: could not open output file.\n");
+        exit(1);
+    }
+    
+    std::string assembly = generateAsm(tacList, astRoot);
+    fprintf(output, "%s", assembly.c_str());
+
+    fclose(output);
+
+    exit(0);
 }

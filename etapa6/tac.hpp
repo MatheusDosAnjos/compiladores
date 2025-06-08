@@ -32,6 +32,7 @@ struct Tac {
 };
 
 void printInvertedTacList(Tac* tac);
+Tac* invertTacList(Tac* tac);
 Tac* generateCode(AstNode* node);
 
 #endif

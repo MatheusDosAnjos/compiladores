@@ -88,6 +88,17 @@ void printInvertedTacList(Tac* tac) {
     }
 }
 
+Tac* invertTacList(Tac* tac) {
+    if (!tac) return nullptr;
+
+    Tac* curr = tac;
+    for (; curr->prev; curr = curr->prev) {
+        curr->prev->next = curr;
+    }
+
+    return curr;
+}
+
 Tac* joinTacs(Tac* first, Tac* second) {
     if (!first) return second;
     if (!second) return first;
