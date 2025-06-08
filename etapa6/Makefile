@@ -7,7 +7,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
-TARGET = etapa5
+TARGET = etapa6
 
 OBJ = parser.tab.o lex.yy.o main.o symbols.o ast.o datatype.o error_reporter.o semantic.o tac.o
 
