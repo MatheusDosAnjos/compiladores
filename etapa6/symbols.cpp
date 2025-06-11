@@ -105,6 +105,10 @@ Symbol* makeSymbol() {
     return addSymbol(SymbolType::IDENTIFIER, buffer);
 }
 
+Symbol* makeSymbol(string& name) {
+    return addSymbol(SymbolType::IDENTIFIER, const_cast<char*>(name.c_str()));
+}
+
 Symbol* makeLabel() {
     static int counter = 0;
     static char buffer[32];

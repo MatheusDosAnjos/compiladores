@@ -11,6 +11,7 @@ Matheus Adam dos Anjos
 #include "ast.hpp"
 #include "tac.hpp"
 #include "semantic.hpp"
+#include "symbols.hpp"
 
 using namespace std;
 
@@ -21,6 +22,8 @@ Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 Tac* generateWhileDoCode(Tac* condition, Tac* code);
 Tac* generateDoWhileCode(Tac* condition, Tac* code);
 Tac* generateFuncCallCode(Tac* args, Symbol* funcName);
+
+map<Symbol*, std::vector<Symbol*>> symbolInitializers;
 
 const map<TacType, const char*> tacTypeLabel = {
     {TacType::SYMBOL, "SYMBOL"},
@@ -124,6 +127,29 @@ Tac* generateCode(AstNode* node) {
     switch (node->type) {
         case AstNodeType::SYMBOL:
             result = new Tac(TacType::SYMBOL, node->symbol);
+            break;
+        case AstNodeType::VAR_DECL: {
+            Symbol* varName = node->children[0]->symbol;
+            Symbol* varValue = node->children[1]->symbol;
+
+            symbolInitializers[varName].push_back(varValue);
+        }
+            break;
+        case AstNodeType::ARRAY_DECL: {
+            unsigned int arraySize = stoul(node->symbol->text);
+            Symbol* varName = node->children[0]->symbol;
+
+            auto& initializers = symbolInitializers[varName];
+            if (node->children.size() > 1) {
+                for (auto* item : node->children[1]->children) {
+                    initializers.push_back(item->symbol);
+                }
+            } else {
+                string zeroStr = "0";
+                static Symbol* zero = makeSymbol(zeroStr);
+                initializers.resize(arraySize, zero);
+            }
+        }
             break;
         case AstNodeType::FUNC_DECL: {
             Symbol* funcName = node->children[0]->symbol;

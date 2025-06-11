@@ -11,6 +11,8 @@ Matheus Adam dos Anjos
 #include "ast.hpp"
 #include "symbols.hpp"
 
+extern std::map<Symbol*, std::vector<Symbol*>> symbolInitializers;
+
 enum class TacType {
     SYMBOL, BEGIN_FUNC, END_FUNC,
     MOVE, MOVE_IDX, IDX_ACCESS, IFZ, JUMP, LABEL,

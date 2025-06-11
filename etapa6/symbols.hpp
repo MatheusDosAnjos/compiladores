@@ -28,6 +28,7 @@ extern std::map<std::string, Symbol*> symbolTable;
 
 Symbol* addSymbol(SymbolType type, char* text);
 Symbol* makeSymbol();
+Symbol* makeSymbol(std::string& name);
 Symbol* makeLabel();
 void printSymbolTable(void);
 
