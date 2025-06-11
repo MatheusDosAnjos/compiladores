@@ -11,6 +11,6 @@ Matheus Adam dos Anjos
 #include "ast.hpp"
 #include "tac.hpp"
 
-std::string generateAsm(Tac* tacList, AstNode* root);
+std::string generateAsm(Tac* tacList);
 
 #endif
