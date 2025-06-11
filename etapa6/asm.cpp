@@ -8,6 +8,7 @@ Matheus Adam dos Anjos
 #include <sstream>
 #include <map>
 #include "ast.hpp"
+#include "datatype.hpp"
 #include "tac.hpp"
 
 using namespace std;
@@ -16,6 +17,8 @@ map<Symbol*, string> stringIdxMap;
 
 string generateDataSection() {
     stringstream ss;
+
+    ss << ".printInt:\n    .string    \"%d\"\n";
 
     for (const auto& [text, symbol] : symbolTable) {
         if (symbol->type == SymbolType::VARIABLE || symbol->type == SymbolType::ARRAY) {
@@ -55,10 +58,20 @@ string generateAsm(Tac* tacList) {
                 ss << "    ret\n";
                 break;
             case TacType::PRINT:
-                if (tacList->res->type == SymbolType::STRING) {
+                if (tacList->res->dataType == DataType::STRING) {
                     ss << "    leaq    " << stringIdxMap[tacList->res] << "(%rip), %rax\n";
                     ss << "    movq    %rax, %rdi\n";
                     ss << "    call    printf@PLT\n";
+                } else if (tacList->res->dataType == DataType::INT) {
+                    ss << "    movl    " << tacList->res->text << "(%rip), %eax\n";
+                    ss << "    movl    %eax, %esi\n";
+                    ss << "    leaq    .printInt(%rip), %rax\n";
+                    ss << "    movq    %rax, %rdi\n";
+                    ss << "    call    printf@PLT\n";
+                } else if (tacList->res->dataType == DataType::CHAR) {
+                    ss << "    movl    " << tacList->res->text << "(%rip), %eax\n";
+                    ss << "    movl    %eax, %edi\n";
+                    ss << "    call    putchar@PLT\n";
                 }
                 break;
         }

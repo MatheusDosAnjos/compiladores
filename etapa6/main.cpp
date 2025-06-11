@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     }
     
     std::string assembly = generateAsm(tacList);
-    fprintf(stderr, "%s", assembly.c_str());
+    fprintf(output, "%s", assembly.c_str());
 
     fclose(output);
 
