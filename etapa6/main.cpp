@@ -52,5 +52,7 @@ int main(int argc, char** argv) {
 
     fclose(output);
 
+    system("gcc -o program out.s; ./program");
+
     exit(0);
 }
