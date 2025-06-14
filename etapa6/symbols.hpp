@@ -14,7 +14,7 @@ Matheus Adam dos Anjos
 #include "datatype.hpp"
 
 enum class SymbolType {
-    IDENTIFIER, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
+    IDENTIFIER, LABEL, VARIABLE, ARRAY, FUNCTION, INT, CHAR, REAL, STRING
 };
 
 struct Symbol {

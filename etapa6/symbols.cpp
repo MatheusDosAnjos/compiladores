@@ -17,6 +17,7 @@ string _reverseNumericString(string text);
 
 static const map<SymbolType, DataType> typeMap = {
     {SymbolType::IDENTIFIER, DataType::NONE},
+    {SymbolType::LABEL, DataType::NONE},
     {SymbolType::INT, DataType::INT},
     {SymbolType::CHAR, DataType::CHAR},
     {SymbolType::REAL, DataType::REAL},
@@ -113,5 +114,5 @@ Symbol* makeLabel() {
     static int counter = 0;
     static char buffer[32];
     snprintf(buffer, sizeof(buffer), "_label%d_", counter++);
-    return addSymbol(SymbolType::IDENTIFIER, buffer);
+    return addSymbol(SymbolType::LABEL, buffer);
 }
