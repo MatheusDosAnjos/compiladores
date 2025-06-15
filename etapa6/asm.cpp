@@ -61,6 +61,10 @@ string generateAsm(Tac* tacList) {
     ss << generateDataSection();
 
     for (; tacList; tacList = tacList->next) {
+        if (tacList->type != TacType::SYMBOL) {
+            ss << "\n# --- " << printTac(tacList) << " ---\n";
+        }
+
         switch (tacList->type) {
             case TacType::MOVE:
                 ss << "    movl    _" << tacList->op1->text << "(%rip), %eax\n";

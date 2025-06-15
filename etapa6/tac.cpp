@@ -15,7 +15,6 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-void printTac(Tac* tac);
 void printInvertedTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
@@ -70,13 +69,20 @@ const map<AstNodeType, TacType> binaryOpAstToTac = {
     {AstNodeType::OR, TacType::OR}
 };
 
-void printTac(Tac* tac) {
-    if (!tac) return;
+string printTac(Tac* tac) {
+    if (!tac) return "";
 
-    fprintf(stderr, "Tac(%s", tacTypeLabel.at(tac->type));
-    fprintf(stderr, ", %s", tac->res ? tac->res->text.c_str() : "-");
-    fprintf(stderr, ", %s", tac->op1 ? tac->op1->text.c_str() : "-");
-    fprintf(stderr, ", %s)\n", tac->op2 ? tac->op2->text.c_str() : "-");
+    std::stringstream ss;
+
+    ss << "Tac(" << tacTypeLabel.at(tac->type)
+       << ", " << (tac->res ? tac->res->text : "-")
+       << ", " << (tac->op1 ? tac->op1->text : "-")
+       << ", " << (tac->op2 ? tac->op2->text : "-")
+       << ")";
+
+    fprintf(stderr, "%s\n", ss.str().c_str());
+
+    return ss.str();
 }
 
 void printInvertedTacList(Tac* tac) {

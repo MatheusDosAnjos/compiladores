@@ -33,6 +33,7 @@ struct Tac {
             type(t), res(r), op1(o1), op2(o2) {}
 };
 
+std::string printTac(Tac* tac);
 void printInvertedTacList(Tac* tac);
 Tac* invertTacList(Tac* tac);
 Tac* generateCode(AstNode* node);
