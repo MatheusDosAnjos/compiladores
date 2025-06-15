@@ -1,0 +1,54 @@
+// UFRGS - Compiladores - Marcelo Johann - 2025/1 - Exemplo atualizado
+
+int number = 5;
+
+int main () {
+  print number "\n";      // 5
+  number = number + 1;
+  print number "\n";      // 6
+  number = number - 4;
+  print number "\n";      // 2
+  number = number * 6;
+  print number "\n";      // 12
+  number = number / 4;
+  print number "\n";      // 3
+
+  if (number < 2) {
+    print "< TRUE\n";
+  } else {
+    print "< FALSE\n";
+  }
+
+  if (number > 2) {
+    print "> TRUE\n";
+  }
+
+  if (number <= 4) {
+    print "<= TRUE\n";
+  }
+
+  if (number >= 4) {
+    print ">= TRUE\n";
+  }
+
+  if (number == 3) {
+    print "== TRUE\n";
+  }
+
+  if (number != 55) {
+    print "!= TRUE\n";
+  }
+
+  if (number == 3 & number == 3) {
+    print "& TRUE\n";
+  }
+
+  if (number == 2 | number == 4) {
+    print "| TRUE\n";
+  }
+
+  if (~(number != 3)) {
+    print "~ TRUE\n";
+  }
+
+}

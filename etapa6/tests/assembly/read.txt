@@ -1,0 +1,8 @@
+int number = 1;
+
+int main () {
+  print "number value is: " number "\n";
+  print "enter a new value: ";
+  read number;
+  print "number now has a new value: " number "\n";
+}

@@ -1,0 +1,29 @@
+// UFRGS - Compiladores - Marcelo Johann - 2025/1 - Exemplo atualizado
+
+int number = 5;
+
+int main () {
+  print "number = " number "\n";
+
+  if (number == 5) {
+    print "IF1   -> number == 5\n";
+  } else {
+    print "ELSE1 -> number != 5\n";
+  }
+
+  if (number != 5) {
+    print "IF2   -> number != 5\n";
+  } else {
+    print "ELSE2 -> number == 5\n";
+  }
+
+  do {
+    print "DO number > 3 -> " "number = " number "\n";
+    number = number - 1;
+  } while (number > 3);
+
+  while (number < 6) do {
+    print "WHILE number < 6 -> " "number = " number "\n";
+    number = number + 1;
+  }
+}

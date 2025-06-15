@@ -1,0 +1,14 @@
+// UFRGS - Compiladores - Marcelo Johann - 2025/1 - Exemplo atualizado
+
+int number[3] = 1, 2, 3;
+
+int main () {
+  print "\n number[0] = " number[0];
+  print "\n number[1] = " number[1];
+  print "\n number[2] = " number[2] "\n";
+
+  number[2 / 2] = 4;
+  print "\n number[0] = " number[0];
+  print "\n number[1] = " number[1];
+  print "\n number[2] = " number[2] "\n";
+}

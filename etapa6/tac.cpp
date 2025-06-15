@@ -163,7 +163,7 @@ Tac* generateCode(AstNode* node) {
             result = joinTacs(codes[0], result);
             break;
         case AstNodeType::ASSIGN_ARRAY_ELEM:
-            result = new Tac(TacType::MOVE_IDX, node->symbol, codes[0]->res, codes[1]->res);
+            result = new Tac(TacType::MOVE_IDX, codes[0]->op1, codes[0]->op2, codes[1]->res);
             result = joinTacs(joinTacs(codes[0], codes[1]), result);
             break;
         case AstNodeType::ARRAY_ELEM:
