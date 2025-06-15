@@ -115,17 +115,22 @@ string generateAsm(Tac* tacList) {
                     ss << "    leaq    " << stringIdxMap[tacList->res] << "(%rip), %rax\n";
                     ss << "    movq    %rax, %rdi\n";
                     ss << "    call    printf@PLT\n";
-                } else if (dt == DataType::INT || dt == DataType::NONE) {
-                    ss << "    movl    _" << tacList->res->text << "(%rip), %eax\n";
-                    ss << "    movl    %eax, %esi\n";
-                    ss << "    leaq    .printInt(%rip), %rax\n";
-                    ss << "    movq    %rax, %rdi\n";
-                    ss << "    call    printf@PLT\n";
-                } else if (dt == DataType::CHAR) {
+                    continue;
+                } 
+                
+                if (dt == DataType::CHAR) {
                     ss << "    movl    _" << tacList->res->text << "(%rip), %eax\n";
                     ss << "    movl    %eax, %edi\n";
                     ss << "    call    putchar@PLT\n";
+                    continue;
                 }
+
+                ss << "    movl    _" << tacList->res->text << "(%rip), %eax\n";
+                ss << "    movl    %eax, %esi\n";
+                ss << "    leaq    .printInt(%rip), %rax\n";
+                ss << "    movq    %rax, %rdi\n";
+                ss << "    call    printf@PLT\n";
+
                 break;
             }
             case TacType::RETURN:

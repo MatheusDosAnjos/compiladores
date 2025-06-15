@@ -1,5 +1,3 @@
-// UFRGS - Compiladores - Marcelo Johann - 2025/1 - Exemplo atualizado
-
 int number = 5;
 
 int main () {
