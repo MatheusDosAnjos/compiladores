@@ -1,6 +1,6 @@
 int number[3] = 1, 2, 3;
-int index = 0;
-int value = 4;
+int index = 1;
+int value = 5555;
 
 int main () {
   print "\n number[0] = " number[0];

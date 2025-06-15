@@ -66,6 +66,9 @@ void printSymbolTable() {
             case SymbolType::IDENTIFIER:
                 fprintf(stderr, "Symbol[IDENTIFIER, ");
                 break;
+            case SymbolType::LABEL:
+                fprintf(stderr, "Symbol[LABEL, ");
+                break;
             case SymbolType::VARIABLE:
                 fprintf(stderr, "Symbol[VARIABLE, ");
                 break;
@@ -86,6 +89,7 @@ void printSymbolTable() {
                 break;
             case SymbolType::STRING:
                 fprintf(stderr, "Symbol[STRING, ");
+                break;
         }
 
         fprintf(stderr, "%s] = %s", x.first.c_str(), getDataTypeLabel(x.second->dataType).c_str());
