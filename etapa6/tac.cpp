@@ -196,11 +196,23 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::FUNC_CALL:
             result = generateFuncCallCode(codes[0], node->symbol);
             break;
-        case AstNodeType::ARG_LIST:
+        case AstNodeType::ARG_LIST: {
+            Tac* computationCode = nullptr;
+            Tac* argPassingCode = nullptr;
+
+            // Joins all the code that computes the argument values.
+            // This ensures all inner function calls are resolved first.
             for (Tac* code : codes) {
-                Tac* argTac = new Tac(TacType::ARG, code->res);
-                result = joinTacs(joinTacs(result, code), argTac);
+                computationCode = joinTacs(computationCode, code);
             }
+
+            // Creates a clean, contiguous block of ARG TACs for argument passing.
+            for (Tac* code : codes) {
+                argPassingCode = joinTacs(argPassingCode, new Tac(TacType::ARG, code->res));
+            }
+            
+            result = joinTacs(computationCode, argPassingCode);
+        }
             break;
         case AstNodeType::ADD:
         case AstNodeType::SUB:

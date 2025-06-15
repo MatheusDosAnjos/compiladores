@@ -1,0 +1,30 @@
+int var = 0;
+
+int main () {
+  print "Valor inicial: var = " var "\n";
+
+  var = func1(func2(1), func3(2));
+  print "var = " var "\n";
+
+  var = func2(2);
+  print "var = " var "\n";
+
+  var = func0();
+  print "Valor final: var =  " var "\n";
+}
+
+int func0() {
+  return 0;
+}
+
+int func1(int x, int y) {
+  return x + y;
+}
+
+int func2(int w) {
+  return w;
+}
+
+int func3(int v) {
+  return v;
+}

@@ -129,11 +129,13 @@ string generateAsm(Tac* tacList) {
                 ss << "    popq    %rbp\n";
                 ss << "    ret\n";
                 break;
-            // TODO
             case TacType::FUNC_CALL:
+                ss << "    call    " << tacList->op1->text << "\n";
+                ss << "    movl    %eax, _" << tacList->res->text << "(%rip)\n";
                 break;
-            // TODO
             case TacType::ARG:
+                ss << "    movl    _" << tacList->res->text << "(%rip), %eax\n";
+                ss << "    movl    %eax, _" << tacList->op2->text << "(%rip)\n";
                 break;
             case TacType::ADD:
                 ss << "    movl    _" << tacList->op1->text << "(%rip), %eax\n";
