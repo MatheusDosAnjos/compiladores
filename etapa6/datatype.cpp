@@ -23,6 +23,7 @@ static const map<DataType, const char*> dataTypeLabel = {
 };
 
 const set<pair<DataType, DataType>> compatibleDataTypes = {
+    {DataType::INT, DataType::BYTE},
     {DataType::INT,  DataType::INT},
     {DataType::INT,  DataType::CHAR},
     {DataType::REAL, DataType::REAL},
