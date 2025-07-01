@@ -15,7 +15,7 @@ Matheus Adam dos Anjos
 using namespace std;
 
 void printTac(Tac* tac);
-void printInvertedTacList(Tac* tac);
+void printTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 Tac* generateWhileDoCode(Tac* condition, Tac* code);
@@ -76,8 +76,8 @@ void printTac(Tac* tac) {
     fprintf(stderr, ", %s)\n", tac->op2 ? tac->op2->text.c_str() : "-");
 }
 
-void printInvertedTacList(Tac* tac) {
-    for (; tac; tac = tac->prev) {
+void printTacList(Tac* tac) {
+    for (; tac; tac = tac->next) {
         if (tac-> type == TacType::LABEL) {
             fprintf(stderr, "-> %s:\n", tac->res->text.c_str());
             continue;
@@ -86,6 +86,17 @@ void printInvertedTacList(Tac* tac) {
         if (tac->type != TacType::SYMBOL)
             printTac(tac);
     }
+}
+
+Tac* invertTacList(Tac* tac) {
+    if (!tac) return nullptr;
+
+    Tac* curr = tac;
+    for (; curr->prev; curr = curr->prev) {
+        curr->prev->next = curr;
+    }
+
+    return curr;
 }
 
 Tac* joinTacs(Tac* first, Tac* second) {
@@ -126,7 +137,7 @@ Tac* generateCode(AstNode* node) {
             result = joinTacs(codes[0], result);
             break;
         case AstNodeType::ASSIGN_ARRAY_ELEM:
-            result = new Tac(TacType::MOVE_IDX, node->symbol, codes[0]->res, codes[1]->res);
+            result = new Tac(TacType::MOVE_IDX, codes[0]->op1, codes[0]->op2, codes[1]->res);
             result = joinTacs(joinTacs(codes[0], codes[1]), result);
             break;
         case AstNodeType::ARRAY_ELEM:
@@ -159,11 +170,23 @@ Tac* generateCode(AstNode* node) {
         case AstNodeType::FUNC_CALL:
             result = generateFuncCallCode(codes[0], node->symbol);
             break;
-        case AstNodeType::ARG_LIST:
+        case AstNodeType::ARG_LIST: {
+            Tac* computationCode = nullptr;
+            Tac* argPassingCode = nullptr;
+
+            // Joins all the code that computes the argument values.
+            // This ensures all inner function calls are resolved first.
             for (Tac* code : codes) {
-                Tac* argTac = new Tac(TacType::ARG, code->res);
-                result = joinTacs(joinTacs(result, code), argTac);
+                computationCode = joinTacs(computationCode, code);
             }
+
+            // Creates a clean, contiguous block of ARG TACs for argument passing.
+            for (Tac* code : codes) {
+                argPassingCode = joinTacs(argPassingCode, new Tac(TacType::ARG, code->res));
+            }
+            
+            result = joinTacs(computationCode, argPassingCode);
+        }
             break;
         case AstNodeType::ADD:
         case AstNodeType::SUB:

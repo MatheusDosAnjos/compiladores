@@ -37,5 +37,8 @@ int main(int argc, char** argv) {
 
     if (hasSematicErrors()) exit(4);
 
-    printInvertedTacList(generateCode(astRoot));
+    Tac* tacList = generateCode(astRoot);
+    tacList = invertTacList(tacList);
+
+    printTacList(tacList);
 }
