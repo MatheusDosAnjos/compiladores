@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
     runSemanticAnalysis(astRoot);
 
     if (hasSematicErrors()) exit(4);
-    
+
     Tac* tacList = generateCode(astRoot);
     tacList = invertTacList(tacList);
 

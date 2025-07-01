@@ -34,7 +34,7 @@ struct Tac {
 };
 
 std::string printTac(Tac* tac);
-void printInvertedTacList(Tac* tac);
+void printTacList(Tac* tac);
 Tac* invertTacList(Tac* tac);
 Tac* generateCode(AstNode* node);
 

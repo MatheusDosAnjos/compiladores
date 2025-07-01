@@ -15,7 +15,7 @@ Matheus Adam dos Anjos
 
 using namespace std;
 
-void printInvertedTacList(Tac* tac);
+void printTacList(Tac* tac);
 Tac* joinTacs(Tac* first, Tac* second);
 Tac* generateIfElseCode(Tac* condition, Tac* ifCode, Tac* elseCode);
 Tac* generateWhileDoCode(Tac* condition, Tac* code);
@@ -85,8 +85,8 @@ string printTac(Tac* tac) {
     return ss.str();
 }
 
-void printInvertedTacList(Tac* tac) {
-    for (; tac; tac = tac->prev) {
+void printTacList(Tac* tac) {
+    for (; tac; tac = tac->next) {
         if (tac-> type == TacType::LABEL) {
             fprintf(stderr, "-> %s:\n", tac->res->text.c_str());
             continue;
